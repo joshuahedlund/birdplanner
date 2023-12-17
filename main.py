@@ -2,17 +2,26 @@ from sqlalchemy.orm import Session
 
 from models.base import init_engine
 from models.hotspots import Hotspot
+from models.trip_hotspots import TripHotspot
 
 from topbars import getTopSpecies
 
 MONTH = 12
 FREQ_MIN = 8
+TRIP_ID = 1
 
 engine = init_engine()
 with Session(engine) as session:
+    # Get hotspots for trip
+    tripHotSpots = session.query(TripHotspot)\
+        .filter(TripHotspot.tripId == TRIP_ID)\
+        .with_entities(TripHotspot.hotspotId)\
+        .all()
+    hotspotIds = [x[0] for x in tripHotSpots]
 
-    # Get top 10 hotspots
-    hotspots = session.query(Hotspot).order_by(Hotspot.numSpeciesAllTime.desc()).limit(10).all()
+    hotspots = session.query(Hotspot)\
+        .filter(Hotspot.id.in_(hotspotIds))\
+        .all()
 
     curated_hotspots = []
     for hotspot in hotspots:

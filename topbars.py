@@ -43,7 +43,7 @@ def getTopSpecies(LocID, month, freqMin):
         freqSum = 0
         for div in lastTd.split('<div class="')[1:]:
             divClass = div.split('"')[0]
-            if divClass == 'sp': # No sightings
+            if divClass in ('bu', 'sp'): # insufficient data
                 continue
             freqSum += int(divClass[1])
         freqAvg = freqSum / 4
