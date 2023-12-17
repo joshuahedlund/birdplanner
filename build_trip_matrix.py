@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 import pandas as pd
 
@@ -9,7 +10,7 @@ from models.trip_hotspots import TripHotspot
 from topbars import getTopSpecies
 
 MONTH = 12
-FREQ_MIN = 5
+FREQ_MIN = 7
 TRIP_ID = 1
 
 engine = init_engine()
@@ -17,6 +18,7 @@ with Session(engine) as session:
     # Get hotspots for trip
     tripHotSpots = session.query(TripHotspot)\
         .filter(TripHotspot.tripId == TRIP_ID)\
+        .filter(or_(TripHotspot.status.is_(None), TripHotspot.status == 'visit'))\
         .with_entities(TripHotspot.hotspotId)\
         .all()
     hotspotIds = [x[0] for x in tripHotSpots]
@@ -29,7 +31,7 @@ with Session(engine) as session:
     for hotspot in hotspots:
         print(hotspot.name, hotspot.numSpeciesAllTime)
 
-        speciesList = getTopSpecies(hotspot.locId, MONTH, FREQ_MIN)
+        speciesList = getTopSpecies(hotspot.locId, MONTH, 3)
         curated_hotspots.append({'name': hotspot.name, 'species': speciesList, 'count': len(speciesList)})
 
 
@@ -50,6 +52,9 @@ with Session(engine) as session:
 
     # move species column to first column of dataframe
     hotspotMatrix = hotspotMatrix[ ['species'] + [ col for col in hotspotMatrix.columns if col != 'species' ] ]
+
+    # filter out species with a maximum value less than FREQ_MIN
+    hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= FREQ_MIN]
 
     # fill NaN with 0
     hotspotMatrix = hotspotMatrix.fillna(0)
