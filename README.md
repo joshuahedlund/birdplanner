@@ -1,0 +1,1 @@
+This is a project to help plan a birding trip by analyzing data from eBird and recommending hotspots based on various criteria. It is a work in progress.
