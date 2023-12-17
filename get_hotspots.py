@@ -11,8 +11,8 @@ from models.hotspots import Hotspot
 MONTH = 12
 FREQ_MIN = 8
 
-lat = -33.87
-lng = 151.21
+lat = -33.61
+lng = 150.46
 dist = 30
 
 url = f"https://api.ebird.org/v2/ref/hotspot/geo?fmt=json&back=14&lat={lat}&lng={lng}&dist={dist}"
