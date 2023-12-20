@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 from models.base import init_engine
-from models.hotspots import Hotspot
-from models.trip_hotspots import TripHotspot
+from models.Hotspots import Hotspot
+from models.TripHotspots import TripHotspot
 
 from topbars import getTopSpecies
 
@@ -27,7 +27,7 @@ with Session(engine) as session:
     for hotspot in hotspots:
         print(hotspot.name, hotspot.numSpeciesAllTime)
 
-        speciesList = getTopSpecies(hotspot.locId, MONTH, FREQ_MIN)
+        speciesList = getTopSpecies(hotspot.id, MONTH, FREQ_MIN)
         curated_hotspots.append({'name': hotspot.name, 'species': speciesList, 'count': len(speciesList)})
 
 

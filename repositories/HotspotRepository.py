@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 
 def getHotspotIds(session: Session, tripId: int, ) -> list:
-    from models.trip_hotspots import TripHotspot
+    from models.TripHotspots import TripHotspot
 
     tripHotSpots = session.query(TripHotspot) \
         .filter(TripHotspot.tripId == tripId) \
@@ -18,8 +18,8 @@ def getHotspotIds(session: Session, tripId: int, ) -> list:
     return hotspotIds
 
 def getTopHotspotsNotConsideredForTrip(session: Session, tripId: int, lat: float, lng: float) -> list:
-    from models.hotspots import Hotspot
-    from models.trip_hotspots import TripHotspot
+    from models.Hotspots import Hotspot
+    from models.TripHotspots import TripHotspot
 
     subquery = session.query(TripHotspot.hotspotId).filter(TripHotspot.tripId == tripId)
 

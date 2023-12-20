@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from config import *
 
 from models.base import init_engine
-from models.hotspots import Hotspot
+from models.Hotspots import Hotspot
 
 MONTH = 12
 FREQ_MIN = 8

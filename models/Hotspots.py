@@ -1,12 +1,11 @@
 import datetime
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import UniqueConstraint
 from typing import List
 
 from models.base import Base
-from models.trip_hotspots import TripHotspot
+from models.TripHotspots import TripHotspot
 
 
 class Hotspot (Base):

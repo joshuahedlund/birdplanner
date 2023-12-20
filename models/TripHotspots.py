@@ -1,6 +1,5 @@
 from sqlalchemy import ForeignKeyConstraint
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.mysql import ENUM
 
 from models.base import Base

@@ -7,7 +7,7 @@ from repositories.TripRepository import getTrip
 from topbars import getTopSpecies
 
 TRIP_ID = 1
-FREQ_MIN = 7
+FREQ_MIN = 70
 
 engine = init_engine()
 
@@ -31,7 +31,7 @@ if not hotspots:
     exit()
 
 for hotspot in hotspots:
-    speciesList = getTopSpecies(hotspot.locId, trip.month, FREQ_MIN)
+    speciesList = getTopSpecies(hotspot.id, trip.month, FREQ_MIN)
 
     # Find species in speciesList that are not in tripMatrix
     speciesList = speciesList[~speciesList['species'].isin(tripMatrix['species'])]
