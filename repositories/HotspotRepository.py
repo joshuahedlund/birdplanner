@@ -28,7 +28,7 @@ def getTopHotspotsNotConsideredForTrip(session: Session, tripId: int, lat: float
         .filter(func.abs(Hotspot.latitude - lat) < 0.15) \
         .filter(func.abs(Hotspot.longitude - lng) < 0.15) \
         .order_by(Hotspot.numSpeciesAllTime.desc()) \
-        .limit(10) \
+        .limit(15) \
         .all()
 
     return hotspots

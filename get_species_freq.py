@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import requests
 
@@ -44,34 +46,29 @@ def parseSpeciesList(tbody: str, month: int, freqMin: float) -> pd.DataFrame:
 
 
 def getTbodyFromLocID(LocID: str) -> Optional[str]:
-    try:
-        # deprecated
-        tbody = open("data/{}.html".format(LocID)).read()
-    except:
-        print("getting data from ebird.org")
-        url = "https://ebird.org/barchart?r={}&byr=2018&eyr=2023".format(LocID)
-        html = requests.get(url).text
+    print("getting data from ebird.org")
+    url = "https://ebird.org/barchart?r={}&byr=2018&eyr=2023".format(LocID)
+    html = requests.get(url).text
 
-        # Parse html to table class="barChart"
-        table = html.split('<table class="barChart')[1].split('</table>')[0]
-        tbody = table.split('<tbody>')[1].split('</tbody>')[0]
-
-    if not tbody:
-        print("tbody is empty")
-        return None
+    # Parse html to table class="barChart"
+    table = html.split('<table class="barChart')[1].split('</table>')[0]
+    tbody = table.split('<tbody>')[1].split('</tbody>')[0]
 
     return tbody
 
 def retrieveSpeciesFreqs(hotspotId: int):
 
     with Session(init_engine()) as session:
-        for month in range(1, 13):
-            hotspot = session.query(Hotspot)\
-                .filter(Hotspot.id == hotspotId)\
-                .with_entities(Hotspot.id, Hotspot.locId)\
-                .first()
+        hotspot = session.query(Hotspot) \
+            .filter(Hotspot.id == hotspotId) \
+            .first()
 
-            tbody = getTbodyFromLocID(hotspot.locId)
+        tbody = getTbodyFromLocID(hotspot.locId)
+        if not tbody:
+            print("tbody is empty")
+            return None
+
+        for month in range(1, 13):
             speciesList = parseSpeciesList(tbody, month, 0.1)
 
             # Get species ids that already exist from species names
@@ -87,5 +84,8 @@ def retrieveSpeciesFreqs(hotspotId: int):
 
                 # Save species frequency
                 storeSpeciesFreq(session, hotspot.id, speciesId, row.freq * 10, month)
+
+        # Update hotspot speciesFreqUpdatedAt
+        hotspot.speciesFreqUpdatedAt = datetime.now()
 
         session.commit()

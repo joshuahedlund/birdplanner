@@ -19,6 +19,7 @@ class Hotspot (Base):
     numSpeciesAllTime: Mapped[int] = mapped_column('num_species_all_time')
     createdAt: Mapped[datetime.datetime] = mapped_column('created_at')
     updatedAt: Mapped[datetime.datetime] = mapped_column('updated_at')
+    speciesFreqUpdatedAt: Mapped[datetime.datetime] = mapped_column('species_freq_updated_at', nullable=True)
 
     tripHotspots: Mapped[List["TripHotspot"]] = relationship()
 
