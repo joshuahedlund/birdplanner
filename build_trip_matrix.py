@@ -5,12 +5,14 @@ import pandas as pd
 from models.base import init_engine
 from models.Hotspots import Hotspot
 from repositories.HotspotRepository import getHotspotIds
+from repositories.UserSpeciesRepository import getUserSpeciesNames
 
 from topbars import getTopSpecies
 
 MONTH = 12
 FREQ_MIN = 70
 TRIP_ID = 1
+USER_ID = 1
 
 
 with Session(init_engine()) as session:
@@ -54,6 +56,10 @@ hotspotMatrix = hotspotMatrix[ ['species'] + [ col for col in hotspotMatrix.colu
 
 # filter out species with a maximum value less than FREQ_MIN
 hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= FREQ_MIN]
+
+# filter out species already seen by this user
+excludeSpecies = getUserSpeciesNames(USER_ID)
+hotspotMatrix = hotspotMatrix[~hotspotMatrix['species'].isin(excludeSpecies)]
 
 # fill NaN with 0
 hotspotMatrix = hotspotMatrix.fillna(0)
