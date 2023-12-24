@@ -32,3 +32,15 @@ def getTopHotspotsNotConsideredForTrip(session: Session, tripId: int, lat: float
         .all()
 
     return hotspots
+
+def getTopHotspotsNearby(session: Session, lat: float, lng: float, limit: int) -> list:
+    from models.Hotspots import Hotspot
+
+    hotspots = session.query(Hotspot) \
+        .filter(func.abs(Hotspot.latitude - lat) < 0.6) \
+        .filter(func.abs(Hotspot.longitude - lng) < 0.6) \
+        .order_by(Hotspot.numSpeciesAllTime.desc()) \
+        .limit(limit) \
+        .all()
+
+    return hotspots

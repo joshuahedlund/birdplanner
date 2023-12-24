@@ -32,7 +32,7 @@ if not hotspots:
 
 for hotspot in hotspots:
     shouldRetrieve = hotspot.speciesFreqUpdatedAt is None
-    speciesList = getTopSpecies(hotspot.id, month=trip.month, freq=FREQ_MIN, retrieve=shouldRetrieve)
+    speciesList = getTopSpecies(hotspot, month=trip.month, freq=FREQ_MIN)
 
     # Find species in speciesList that are not in tripMatrix
     speciesList = speciesList[~speciesList['species'].isin(tripMatrix['species'])]

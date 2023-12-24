@@ -9,11 +9,10 @@ from models.base import init_engine
 from models.Hotspots import Hotspot
 
 MONTH = 12
-FREQ_MIN = 8
 
-lat = -33.61
-lng = 150.46
-dist = 30
+lat = -33.87
+lng = 151.21
+dist = 60
 
 url = f"https://api.ebird.org/v2/ref/hotspot/geo?fmt=json&back=14&lat={lat}&lng={lng}&dist={dist}"
 

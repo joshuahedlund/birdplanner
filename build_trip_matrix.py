@@ -31,8 +31,7 @@ curated_hotspots = []
 for hotspot in hotspots:
     print(hotspot.name, hotspot.numSpeciesAllTime)
 
-    shouldRetrieve = hotspot.speciesFreqUpdatedAt is None
-    speciesList = getTopSpecies(hotspot.id, month=MONTH, retrieve=shouldRetrieve)
+    speciesList = getTopSpecies(hotspot, month=MONTH)
     curated_hotspots.append({'name': hotspot.name, 'species': speciesList, 'count': len(speciesList)})
 
 
