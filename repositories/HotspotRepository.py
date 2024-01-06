@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.getcwd()))
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 
-def getHotspotIds(session: Session, tripId: int, ) -> list:
+def getHotspotIdsForTrip(session: Session, tripId: int, ) -> list:
     from models.TripHotspots import TripHotspot
 
     tripHotSpots = session.query(TripHotspot) \

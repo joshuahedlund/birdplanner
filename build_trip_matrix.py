@@ -4,7 +4,7 @@ import pandas as pd
 
 from models.base import init_engine
 from models.Hotspots import Hotspot
-from repositories.HotspotRepository import getHotspotIds
+from repositories.HotspotRepository import getHotspotIdsForTrip
 from repositories.UserSpeciesRepository import getUserSpeciesNames
 
 from topbars import getTopSpecies
@@ -17,7 +17,7 @@ USER_ID = 1
 
 with Session(init_engine()) as session:
     # Get hotspots for trip
-    hotspotIds = getHotspotIds(session, TRIP_ID)
+    hotspotIds = getHotspotIdsForTrip(session, TRIP_ID)
 
     hotspots = session.query(Hotspot)\
         .filter(Hotspot.id.in_(hotspotIds))\

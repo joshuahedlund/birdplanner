@@ -31,7 +31,7 @@ def getTopHotspotsForSpecies(session: Session, speciesId: int, month: int, limit
         .filter(SpeciesFreq.month == month)
     if lat and lng:
         hotspots = hotspots.filter(func.abs(Hotspot.latitude - lat) < 0.6)
-    hotspots = hotspots.with_entities(Hotspot.id, Hotspot.name, SpeciesFreq.freq)\
+    hotspots = hotspots.with_entities(Hotspot.id, Hotspot.name, Hotspot.locId, SpeciesFreq.freq)\
         .order_by(SpeciesFreq.freq.desc())\
         .limit(limit)\
         .all()

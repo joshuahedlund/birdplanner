@@ -5,7 +5,26 @@
 {% endblock %}
 
 {% block content %}
-<ul>
-  TODO
-</ul>
+<h2>Top Hotspots For {{ trip.name }} in {{ trip.month_name }}</h2>
+{% if not hotspots %}
+    <p>No hotspots found!</p>
+{% else %}
+<table>
+  <thead>
+    <tr>
+      <th>Freq.</th>
+      <th>Hotspot</th>
+    </tr>
+  </thead>
+  <tbody>
+     {% for hotspot in hotspots %}
+    <tr class="{% if hotspot.id in tripHotspotIds %}highlight{% endif %}">
+      <td>{{ hotspot.freq }}</td>
+      <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
 {% endblock %}
