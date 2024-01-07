@@ -1,11 +1,8 @@
 import os
 
-from flask import Flask, g
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template
 
 from . import db
-
-from repositories.TripRepository import getTrip
 
 
 def create_app(test_config=None):
@@ -30,12 +27,9 @@ def create_app(test_config=None):
         pass
 
 
-    # a simple page that says hello
-    @app.route('/hello')
+    @app.route('/')
     def hello():
-        trip = getTrip(app.db.session, 3)
-
-        return 'Hello, World!' + str(trip.name)
+        return render_template('index.html')
 
     from . import species
     app.register_blueprint(species.bp)
