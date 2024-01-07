@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKeyConstraint, Index
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
@@ -15,5 +15,5 @@ class UserSpecies (Base):
     def __repr__(self) -> str:
         return f'<UserSpecies(id={self.id}, userId={self.userId}, speciesId={self.speciesId}>'
 
-Index('user_id', UserSpecies.userId)
+ForeignKeyConstraint([UserSpecies.userId], ['users.id'], name='fk_us_user_id')
 ForeignKeyConstraint([UserSpecies.speciesId], ['species.id'], name='fk_us_species_id')

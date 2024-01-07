@@ -1,8 +1,7 @@
 import datetime
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKeyConstraint
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.schema import Index
 from sqlalchemy.dialects.mysql import SMALLINT, TINYINT
 
 from models.base import Base
@@ -23,4 +22,5 @@ class Trip (Base):
     def __repr__(self) -> str:
         return f'<Trip(id={self.id}, name={self.name}, year={self.year}, month={self.month}>'
 
-Index('user_id', Trip.userId)
+
+ForeignKeyConstraint([Trip.userId], ['users.id'], name='fk_trip_user_id')

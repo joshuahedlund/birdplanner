@@ -1,11 +1,11 @@
-from datetime import datetime
 import os
 import sys
 sys.path.append(os.path.dirname(os.getcwd()))
 
+from datetime import datetime
 from sqlalchemy.orm import Session
 
-from models.trips import Trip
+from models.Trips import Trip
 
 
 def getTrip(session: Session, tripId: int) -> Trip:

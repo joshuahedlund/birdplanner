@@ -31,8 +31,12 @@ def create_app(test_config=None):
     def hello():
         return render_template('index.html')
 
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     from . import species
     app.register_blueprint(species.bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app
