@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 
 from . import db
 
@@ -26,16 +26,12 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-
-    @app.route('/')
-    def hello():
-        return render_template('index.html')
-
-    from . import auth
+    from . import home, auth, species, trips
+    app.register_blueprint(home.bp)
     app.register_blueprint(auth.bp)
-
-    from . import species
     app.register_blueprint(species.bp)
+    app.register_blueprint(trips.bp)
+
 
     app.add_url_rule('/', endpoint='index')
 

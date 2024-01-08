@@ -17,6 +17,14 @@ def getTrip(session: Session, tripId: int) -> Trip:
     return trip
 
 
+def getTripsForUser(session: Session, userId: int) -> list:
+        trips = session.query(Trip) \
+            .filter(Trip.userId == userId) \
+            .all()
+
+        return trips
+
+
 def storeTrip(session: Session, userId: int, name: str, lat: float, lng: float, year: int, month: int) -> Trip:
 
     trip = Trip(userId=userId, name=name, latitude=lat, longitude=lng, year=year, month=month)

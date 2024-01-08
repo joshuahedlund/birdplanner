@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <p>
+      When? {{ trip.month }}/{{ trip.year }}<br/>
+      Where? {{ trip.latitude }}, {{ trip.longitude }}
+  </p>
+
+  <hr/>
+
+    <h2>Hotspots</h2>
+    {% if not tripHotspots %}
+        <p>No hotspots added!</p>
+    {% else %}
+
+    <table>
+      <thead>
+        <tr>
+            <th>Hotspot</th>
+            <th>Num. All-Time</th>
+            <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+         {% for hotspot in tripHotspots %}
+        <tr>
+          <td>{{ hotspot.name }}</td>
+            <td>{{ hotspot.numSpeciesAllTime }}</td>
+            <td>{{ hotspot.status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    {% endif %}
+{% endblock %}

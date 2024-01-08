@@ -8,4 +8,23 @@
 <p>
     Welcome to BirdPlanner
 </p>
+
+    {% if g.user %}
+
+    <p><b>Trips</b></p>
+
+    <ul>
+        {% for t in trips %}
+        <li><a href="{{ url_for('trips.show', id=t.id) }}">{{ t.name }}</a>
+            ({{ t.month }}/{{ t.year }})
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% else %}
+
+    <p><a href="{{ url_for('auth.register') }}">Register</a> to start planning your birding trips</p>
+
+    {% endif %}
+
 {% endblock %}
