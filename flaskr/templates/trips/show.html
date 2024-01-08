@@ -12,7 +12,7 @@
 
   <hr/>
 
-    <h2>Hotspots</h2>
+    <h2>Trip Hotspots</h2>
     {% if not tripHotspots %}
         <p>No hotspots added!</p>
     {% else %}
@@ -21,19 +21,65 @@
       <thead>
         <tr>
             <th>Hotspot</th>
-            <th>Num. All-Time</th>
-            <th>Status</th>
+            <th>#AllTime</th>
+            <th></th>
         </tr>
       </thead>
       <tbody>
          {% for hotspot in tripHotspots %}
         <tr>
-          <td>{{ hotspot.name }}</td>
+          <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
             <td>{{ hotspot.numSpeciesAllTime }}</td>
-            <td>{{ hotspot.status }}</td>
+            <td>[<a href="{{ url_for('trips.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
         </tr>
         {% endfor %}
       </tbody>
+    </table>
+    {% endif %}
 
+    {% if skipHotspots %}
+        <h2>Skip Hotspots</h2>
+
+        <table>
+          <thead>
+            <tr>
+                <th>Hotspot</th>
+                <th>#AllTime</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for hotspot in skipHotspots %}
+            <tr>
+              <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
+                <td>{{ hotspot.numSpeciesAllTime }}</td>
+                <td>[<a href="{{ url_for('trips.visit', id=trip.id, hotspotId=hotspot.id) }}">visit</a>]</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    {% endif %}
+
+    {% if moreHotspots %}
+        <h2>Potential Hotspots</h2>
+
+        <table>
+          <thead>
+            <tr>
+                <th>Hotspot</th>
+                <th>#AllTime</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for hotspot in moreHotspots %}
+            <tr>
+              <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
+                <td>{{ hotspot.numSpeciesAllTime }}</td>
+                <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot.id) }}">add</a>]</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
     {% endif %}
 {% endblock %}

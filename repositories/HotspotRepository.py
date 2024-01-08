@@ -30,15 +30,22 @@ def getHotspotIdsForTrip(session: Session, tripId: int, ) -> list:
 
     return hotspotIds
 
-def getTopHotspotsNotConsideredForTrip(session: Session, tripId: int, lat: float, lng: float) -> list:
+def getTopHotspotsNotConsideredForTrip(
+        session: Session,
+        tripId: int,
+        lat: float,
+        lng: float,
+        limit: int=15,
+        dist: float=0.15
+    ) -> list:
     subquery = session.query(TripHotspot.hotspotId).filter(TripHotspot.tripId == tripId)
 
     hotspots = session.query(Hotspot) \
         .filter(Hotspot.id.notin_(subquery)) \
-        .filter(func.abs(Hotspot.latitude - lat) < 0.15) \
-        .filter(func.abs(Hotspot.longitude - lng) < 0.15) \
+        .filter(func.abs(Hotspot.latitude - lat) < dist) \
+        .filter(func.abs(Hotspot.longitude - lng) < dist) \
         .order_by(Hotspot.numSpeciesAllTime.desc()) \
-        .limit(15) \
+        .limit(limit) \
         .all()
 
     return hotspots
@@ -52,3 +59,29 @@ def getTopHotspotsNearby(session: Session, lat: float, lng: float, limit: int) -
         .all()
 
     return hotspots
+
+
+def skipHotspot(session: Session, tripId: int, hotspotId: int) -> None:
+    tripHotspot = session.query(TripHotspot) \
+        .filter(TripHotspot.tripId == tripId) \
+        .filter(TripHotspot.hotspotId == hotspotId) \
+        .first()
+
+    tripHotspot.status = 'skip'
+    session.commit()
+
+def visitHotspot(session: Session, tripId: int, hotspotId: int) -> None:
+    tripHotspot = session.query(TripHotspot) \
+        .filter(TripHotspot.tripId == tripId) \
+        .filter(TripHotspot.hotspotId == hotspotId) \
+        .first()
+
+    tripHotspot.status = 'visit'
+    session.commit()
+
+def addHotspot(session: Session, tripId: int, hotspotId: int) -> TripHotspot:
+    tripHotspot = TripHotspot(tripId=tripId, hotspotId=hotspotId)
+    session.add(tripHotspot)
+    session.commit()
+
+    return tripHotspot
