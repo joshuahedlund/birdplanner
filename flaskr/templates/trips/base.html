@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <p>
+      When? {{ trip.month }}/{{ trip.year }}<br/>
+      Where? {{ trip.latitude }}, {{ trip.longitude }}
+  </p>
+
+  <hr/>
+
+{% block tabs %}
+{% endblock %}
+
+{% block tabContent %}
+{% endblock %}
+
+{% endblock %}

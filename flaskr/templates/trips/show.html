@@ -1,16 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'trips/base.html' %}
 
-{% block header %}
-  <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+{% block tabs %}
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="{{ url_for('trips.show', id=trip.id) }}">Hotspots</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="{{ url_for('trips.matrix', id=trip.id) }}">Matrix</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="{{ url_for('trips.species', id=trip.id) }}">Species</a>
+    </li>
+</ul>
 {% endblock %}
 
-{% block content %}
-  <p>
-      When? {{ trip.month }}/{{ trip.year }}<br/>
-      Where? {{ trip.latitude }}, {{ trip.longitude }}
-  </p>
-
-  <hr/>
+{% block tabContent %}
+<div class="tab-content">
 
     <h2>Trip Hotspots</h2>
     {% if not tripHotspots %}
@@ -82,4 +87,6 @@
           </tbody>
         </table>
     {% endif %}
+
+</div>
 {% endblock %}

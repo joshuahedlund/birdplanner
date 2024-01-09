@@ -2,12 +2,14 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
 )
 
+from flaskr.auth import login_required
 from repositories.HotspotRepository import *
 from repositories.TripRepository import getTrip
 
 bp = Blueprint('trips', __name__)
 
 @bp.route('/trip/<int:id>')
+@login_required
 def show(id):
     db = app.db
     trip = getTrip(db.session, id)
@@ -37,7 +39,32 @@ def show(id):
     )
 
 
+@bp.route('/trip/<int:id>/matrix')
+@login_required
+def matrix(id):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        flash(f"Trip not found.")
+        return redirect(url_for("home.home"))
+
+    return render_template('trips/matrix.html', trip=trip)
+
+
+@bp.route('/trip/<int:id>/species')
+@login_required
+def species(id):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        flash(f"Trip not found.")
+        return redirect(url_for("home.home"))
+
+    return render_template('trips/species.html', trip=trip)
+
+
 @bp.route('/trip/<int:id>/skip/<int:hotspotId>')
+@login_required
 def skip(id, hotspotId):
     db = app.db
     trip = getTrip(db.session, id)
@@ -50,6 +77,7 @@ def skip(id, hotspotId):
 
 
 @bp.route('/trip/<int:id>/visit/<int:hotspotId>')
+@login_required
 def visit(id, hotspotId):
     db = app.db
     trip = getTrip(db.session, id)
@@ -61,6 +89,7 @@ def visit(id, hotspotId):
     return redirect(url_for("trips.show", id=id))
 
 @bp.route('/trip/<int:id>/add/<int:hotspotId>')
+@login_required
 def add(id, hotspotId):
     db = app.db
     trip = getTrip(db.session, id)
