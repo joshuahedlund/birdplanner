@@ -17,7 +17,7 @@ dist = 60
 url = f"https://api.ebird.org/v2/ref/hotspot/geo?fmt=json&back=14&lat={lat}&lng={lng}&dist={dist}"
 
 # get json data from url
-response = requests.get(url, headers = {"X-eBirdApiToken": API_KEY})
+response = requests.get(url, headers = {"X-eBirdApiToken": EBIRD_API_KEY})
 
 # sort response by number of species
 response = sorted(response.json(), key=lambda x: x['numSpeciesAllTime'], reverse=True)

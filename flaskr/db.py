@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from config import DATABASE_NAME, DATABASE_USER, DATABASE_HOST, DATABASE_PORT
+from config import DATABASE_URI
 
 
 def init_app(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DATABASE_USER}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}'
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
     db = SQLAlchemy(app)
     app.db = db
