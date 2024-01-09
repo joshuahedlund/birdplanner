@@ -9,7 +9,7 @@ from models.Hotspots import Hotspot
 from models.TripHotspots import TripHotspot
 
 
-def getHotspotsForTrip(session: Session, tripId: int) -> list:
+def getAllHotspotsForTrip(session: Session, tripId: int) -> list:
     hotspots = session.query(Hotspot) \
         .join(TripHotspot) \
         .filter(TripHotspot.tripId == tripId) \
@@ -20,7 +20,7 @@ def getHotspotsForTrip(session: Session, tripId: int) -> list:
 
     return hotspots
 
-def getHotspotIdsForTrip(session: Session, tripId: int, ) -> list:
+def getHotspotIdsForTrip(session: Session, tripId: int) -> list:
     tripHotSpots = session.query(TripHotspot) \
         .filter(TripHotspot.tripId == tripId) \
         .filter(or_(TripHotspot.status.is_(None), TripHotspot.status == 'visit')) \
@@ -29,6 +29,17 @@ def getHotspotIdsForTrip(session: Session, tripId: int, ) -> list:
     hotspotIds = [x[0] for x in tripHotSpots]
 
     return hotspotIds
+
+def getTripHotspotsWithFreqs(session: Session, tripId: int) -> list:
+    tripHotspots = session.query(TripHotspot) \
+        .filter(TripHotspot.tripId == tripId) \
+        .filter(Hotspot.speciesFreqUpdatedAt.isnot(None)) \
+        .filter(or_(TripHotspot.status.is_(None), TripHotspot.status == 'visit')) \
+        .join(Hotspot) \
+        .with_entities(Hotspot.id, Hotspot.locId, Hotspot.name) \
+        .all()
+
+    return tripHotspots
 
 def getTopHotspotsNotConsideredForTrip(
         session: Session,
