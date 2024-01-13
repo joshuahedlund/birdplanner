@@ -27,8 +27,4 @@ def getUserByEmail(session, email) -> User:
 
 
 def getUserById(session, userId) -> User:
-    user = session.query(User) \
-        .filter(User.id == userId) \
-        .first()
-
-    return user
+    return session.query(User).get(userId)

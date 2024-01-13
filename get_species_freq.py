@@ -59,9 +59,7 @@ def getTbodyFromLocID(LocID: str) -> Optional[str]:
 def retrieveSpeciesFreqs(hotspotId: int):
 
     with Session(init_engine()) as session:
-        hotspot = session.query(Hotspot) \
-            .filter(Hotspot.id == hotspotId) \
-            .first()
+        hotspot = session.query(Hotspot).get(hotspotId)
 
         tbody = getTbodyFromLocID(hotspot.locId)
         if not tbody:

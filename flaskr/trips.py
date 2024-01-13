@@ -10,16 +10,19 @@ from repositories.TripRepository import getTrip
 
 bp = Blueprint('trips', __name__)
 
+
 @bp.route('/trip/<int:id>')
 @login_required
 def show(id):
+    FREQ_MIN = 70  # todo make this a parameter
+
     db = app.db
     trip = getTrip(db.session, id)
     if trip is None or trip.userId != g.user.id:
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
-    tripHotspots = getAllHotspotsForTrip(db.session, id)
+    tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, FREQ_MIN)
 
     skipHotspots = [h for h in tripHotspots if h.status == 'skip']
     tripHotspots = [h for h in tripHotspots if h.status != 'skip']

@@ -1,24 +1,40 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.getcwd()))
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_
 
 from models.Hotspots import Hotspot
+from models.SpeciesFreq import SpeciesFreq
 from models.TripHotspots import TripHotspot
 
 
-def getAllHotspotsForTrip(session: Session, tripId: int) -> list:
+def getAllHotspotsForTrip(session: Session, tripId: int, tripMonth: int, minFreq: int) -> list:
     hotspots = session.query(Hotspot) \
         .join(TripHotspot) \
-        .filter(TripHotspot.tripId == tripId) \
-        .order_by((or_(TripHotspot.status.is_(None), TripHotspot.status == 'visit')).desc()) \
-        .order_by(Hotspot.numSpeciesAllTime.desc()) \
-        .with_entities(Hotspot.id, Hotspot.locId, Hotspot.name, Hotspot.latitude, Hotspot.longitude, Hotspot.numSpeciesAllTime, TripHotspot.status) \
-        .all()
+        .join(
+            SpeciesFreq,
+            and_(SpeciesFreq.hotspotId == Hotspot.id, SpeciesFreq.month == tripMonth, SpeciesFreq.freq >= minFreq),
+            isouter=True
+        ).filter(TripHotspot.tripId == tripId) \
+        .order_by(func.count(SpeciesFreq.id).desc()) \
+        .group_by(Hotspot.id) \
+        .with_entities(
+            func.any_value(Hotspot.id).label('id'),
+            func.any_value(Hotspot.locId).label('locId'),
+            func.any_value(Hotspot.name).label('name'),
+            func.any_value(Hotspot.latitude).label('latitude'),
+            func.any_value(Hotspot.longitude).label('longitude'),
+            func.any_value(Hotspot.numSpeciesAllTime).label('numSpeciesAllTime'),
+            func.any_value(Hotspot.speciesFreqUpdatedAt).label('speciesFreqUpdatedAt'),
+            func.any_value(TripHotspot.status).label('status'),
+            func.count(SpeciesFreq.id).label('numSpeciesTargets')
+        )
+    print(hotspots)
 
-    return hotspots
+    return hotspots.all()
 
 def getHotspotIdsForTrip(session: Session, tripId: int) -> list:
     tripHotSpots = session.query(TripHotspot) \

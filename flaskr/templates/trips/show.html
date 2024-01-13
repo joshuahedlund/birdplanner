@@ -22,11 +22,12 @@
         <p>No hotspots added!</p>
     {% else %}
 
-    <table>
+    <table class="table">
       <thead>
         <tr>
             <th>Hotspot</th>
             <th>#AllTime</th>
+            <th>#Targets <span title="Number of species with 70%+ frequency the month of your trip">(i)</span></th>
             <th></th>
         </tr>
       </thead>
@@ -35,6 +36,13 @@
         <tr>
           <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
             <td>{{ hotspot.numSpeciesAllTime }}</td>
+            <td>
+                {% if hotspot.speciesFreqUpdatedAt %}
+                {{ hotspot.numSpeciesTargets }}
+                {% else %}
+                [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                {% endif %}
+            </td>
             <td>[<a href="{{ url_for('trips.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
         </tr>
         {% endfor %}
@@ -45,11 +53,12 @@
     {% if skipHotspots %}
         <h2>Skip Hotspots</h2>
 
-        <table>
+        <table class="table">
           <thead>
             <tr>
                 <th>Hotspot</th>
                 <th>#AllTime</th>
+                <th>#Targets <span title="Number of species with 70%+ frequency the month of your trip">(i)</span></th>
                 <th></th>
             </tr>
           </thead>
@@ -58,6 +67,13 @@
             <tr>
               <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
                 <td>{{ hotspot.numSpeciesAllTime }}</td>
+                <td>
+                    {% if hotspot.speciesFreqUpdatedAt %}
+                    {{ hotspot.numSpeciesTargets }}
+                    {% else %}
+                    [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                    {% endif %}
+                </td>
                 <td>[<a href="{{ url_for('trips.visit', id=trip.id, hotspotId=hotspot.id) }}">visit</a>]</td>
             </tr>
             {% endfor %}
@@ -68,7 +84,7 @@
     {% if moreHotspots %}
         <h2>Potential Hotspots</h2>
 
-        <table>
+        <table class="table">
           <thead>
             <tr>
                 <th>Hotspot</th>
