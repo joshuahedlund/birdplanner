@@ -25,5 +25,30 @@ nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
 .content textarea { min-height: 12em; resize: vertical; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
-tr.highlight { background-color: lightgray; }
+tr.highlight, p.highlight { background-color: lightgray; }
 .tab-content { margin: 10px; overflow: scroll; }
+
+#autocompleteInput {
+    width: 100%;
+    max-width: 400px;
+}
+.autocomplete-active {
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+#suggestions {
+    position: absolute;
+    border: 1px solid #eaeaea;
+    z-index: 1000;
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    margin-top: -15px;
+}
+.suggestion-item {
+    padding: 5px;
+    cursor: pointer;
+}
+.suggestion-item:hover {
+    background-color: #eaeaea;
+    }

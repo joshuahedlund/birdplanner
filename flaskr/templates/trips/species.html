@@ -16,6 +16,115 @@
 
 {% block tabContent %}
 <div class="tab-content">
-    Coming Soon!
+    <input type="text" id="autocompleteInput" placeholder="Type to search...">
+    <div id="suggestions"></div>
+
+    <div id="responseDiv">
+      <!-- Response will be populated here -->
+    </div>
+
 </div>
+
+<script>
+document.getElementById('autocompleteInput').focus();
+document.addEventListener('DOMContentLoaded', function () {
+  const inputField = document.getElementById('autocompleteInput');
+  const suggestionsContainer = document.getElementById('suggestions');
+  let currentFocus = -1, debounceTimer;
+
+  function debounce(func, delay) {
+    return function() {
+      const context = this;
+      const args = arguments;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
+
+  const fetchSuggestions = debounce(function(query) {
+        // Fetch data for suggestions
+        fetch('/api/trip/{{ trip.id }}/species-search?query=' + query)
+          .then(response => response.json())
+          .then(data => {
+            suggestionsContainer.innerHTML = '';
+            data.forEach(item => {
+              const regex = new RegExp(query, 'gi');
+              const div = document.createElement('div');
+              div.innerHTML = item.name.replace(regex, `<strong>${query}</strong>`);
+              div.className = 'suggestion-item';
+              div.onclick = function() {
+                inputField.value = item.name;
+                loadDetails(item.id);
+                suggestionsContainer.innerHTML = '';
+                currentFocus = -1;
+              };
+              suggestionsContainer.appendChild(div);
+            });
+          });
+    }, 500);
+
+  inputField.addEventListener('input', function() {
+    const query = this.value;
+    if (query.length < 2) { // Only start searching when at least 2 characters are typed
+      suggestionsContainer.innerHTML = '';
+      return;
+    }
+    fetchSuggestions(query);
+  });
+
+  // Function to add active class to suggestion items
+  function addActive(suggestions) {
+    if (!suggestions) return false;
+    removeActive(suggestions);
+    if (currentFocus >= suggestions.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (suggestions.length - 1);
+    suggestions[currentFocus].classList.add("autocomplete-active");
+  }
+
+  // Function to remove active class from suggestion items
+  function removeActive(suggestions) {
+    for (var i = 0; i < suggestions.length; i++) {
+      suggestions[i].classList.remove("autocomplete-active");
+    }
+  }
+
+  // Event listener for keyboard navigation
+  inputField.addEventListener("keydown", function(e) {
+    var suggestionItems = document.getElementsByClassName("suggestion-item");
+    if (e.keyCode == 40) { // If the arrow DOWN key is pressed
+      currentFocus++;
+      addActive(suggestionItems);
+      e.preventDefault(); // Prevent the default action (scroll / move caret)
+    } else if (e.keyCode == 38) { // If the arrow UP key is pressed
+      currentFocus--;
+      addActive(suggestionItems);
+      e.preventDefault();
+    } else if (e.keyCode == 13) { // If the ENTER key is pressed
+      e.preventDefault();
+      if (currentFocus > -1) {
+        if (suggestionItems) suggestionItems[currentFocus].click(); // Simulate a click on the active item
+      }
+    }
+  });
+
+  function loadDetails(id) {
+    fetch('/api/trip/{{ trip.id }}/species/' + id + '/hotspots')
+      .then(response => response.json())
+      .then(data => {
+        const responseDiv = document.getElementById('responseDiv');
+        let text = '';
+        for (hotspot of data) {
+          if (hotspot.isInTrip) {
+            text += `<p class="highlight">`;
+           } else {
+            text += `<p>`;
+            }
+          text += `<strong>${hotspot.freq}</strong> <a target="_blank" href="https://ebird.org/hotspot/${hotspot.locId}">${hotspot.name}</a></p>`;
+        }
+        responseDiv.innerHTML = text;
+      });
+  }
+});
+</script>
+
 {% endblock %}
