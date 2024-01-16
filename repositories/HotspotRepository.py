@@ -32,7 +32,6 @@ def getAllHotspotsForTrip(session: Session, tripId: int, tripMonth: int, minFreq
             func.any_value(TripHotspot.status).label('status'),
             func.count(SpeciesFreq.id).label('numSpeciesTargets')
         )
-    print(hotspots)
 
     return hotspots.all()
 
@@ -60,18 +59,36 @@ def getTripHotspotsWithFreqs(session: Session, tripId: int) -> list:
 def getTopHotspotsNotConsideredForTrip(
         session: Session,
         tripId: int,
+        tripMonth: int,
         lat: float,
         lng: float,
         limit: int=15,
-        dist: float=0.15
+        dist: float=0.15,
+        minFreq: int=70,
     ) -> list:
     subquery = session.query(TripHotspot.hotspotId).filter(TripHotspot.tripId == tripId)
 
     hotspots = session.query(Hotspot) \
+        .join(
+            SpeciesFreq,
+            and_(SpeciesFreq.hotspotId == Hotspot.id, SpeciesFreq.month == tripMonth, SpeciesFreq.freq >= minFreq),
+            isouter=True
+        )\
         .filter(Hotspot.id.notin_(subquery)) \
         .filter(func.abs(Hotspot.latitude - lat) < dist) \
         .filter(func.abs(Hotspot.longitude - lng) < dist) \
         .order_by(Hotspot.numSpeciesAllTime.desc()) \
+        .group_by(Hotspot.id) \
+        .with_entities(
+            func.any_value(Hotspot.id).label('id'),
+            func.any_value(Hotspot.locId).label('locId'),
+            func.any_value(Hotspot.name).label('name'),
+            func.any_value(Hotspot.latitude).label('latitude'),
+            func.any_value(Hotspot.longitude).label('longitude'),
+            func.any_value(Hotspot.numSpeciesAllTime).label('numSpeciesAllTime'),
+            func.any_value(Hotspot.speciesFreqUpdatedAt).label('speciesFreqUpdatedAt'),
+            func.count(SpeciesFreq.id).label('numSpeciesTargets')
+        ) \
         .limit(limit) \
         .all()
 

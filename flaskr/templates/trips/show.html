@@ -46,6 +46,13 @@
             <td>[<a href="{{ url_for('trips.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
         </tr>
         {% endfor %}
+        <tr>
+            <td>
+                <b>UNIQUE TARGETS</b>
+            </td>
+            <td></td>
+            <td><b>{{ uniqueTargetCount }}</b></td>
+        </tr>
       </tbody>
     </table>
     {% endif %}
@@ -89,6 +96,7 @@
             <tr>
                 <th>Hotspot</th>
                 <th>#AllTime</th>
+                <th>#Targets <span title="Number of species with 70%+ frequency the month of your trip">(i)</span></th>
                 <th></th>
             </tr>
           </thead>
@@ -97,6 +105,13 @@
             <tr>
               <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
                 <td>{{ hotspot.numSpeciesAllTime }}</td>
+                <td>
+                    {% if hotspot.speciesFreqUpdatedAt %}
+                    {{ hotspot.numSpeciesTargets }}
+                    {% else %}
+                    [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                    {% endif %}
+                </td>
                 <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot.id) }}">add</a>]</td>
             </tr>
             {% endfor %}

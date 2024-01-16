@@ -5,7 +5,7 @@ from flaskr.auth import login_required
 import pandas as pd
 
 from repositories.HotspotRepository import *
-from repositories.SpeciesFreqRepository import getSpeciesFreqs
+from repositories.SpeciesFreqRepository import getSpeciesFreqs, getUniqueTargetCount
 from repositories.TripRepository import getTrip
 
 bp = Blueprint('trips', __name__)
@@ -29,18 +29,23 @@ def show(id):
     moreHotspots = getTopHotspotsNotConsideredForTrip(
         db.session,
         id,
+        trip.month,
+        minFreq=FREQ_MIN,
         lat=trip.latitude,
         lng=trip.longitude,
-        dist=0.3,
+        dist=0.5,
         limit=50
     )
+
+    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, FREQ_MIN)
 
     return render_template(
         'trips/show.html',
         trip=trip,
         tripHotspots=tripHotspots,
         skipHotspots=skipHotspots,
-        moreHotspots=moreHotspots
+        moreHotspots=moreHotspots,
+        uniqueTargetCount=uniqueTargetCount
     )
 
 
