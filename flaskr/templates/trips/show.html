@@ -40,7 +40,7 @@
                 {% if hotspot.speciesFreqUpdatedAt %}
                 {{ hotspot.numSpeciesTargets }}
                 {% else %}
-                [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot.id }}, this.parentElement)">get</a>]
                 {% endif %}
             </td>
             <td>[<a href="{{ url_for('trips.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
@@ -78,7 +78,7 @@
                     {% if hotspot.speciesFreqUpdatedAt %}
                     {{ hotspot.numSpeciesTargets }}
                     {% else %}
-                    [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                    [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot.id }}, this.parentElement)">get</a>]
                     {% endif %}
                 </td>
                 <td>[<a href="{{ url_for('trips.visit', id=trip.id, hotspotId=hotspot.id) }}">visit</a>]</td>
@@ -109,7 +109,7 @@
                     {% if hotspot.speciesFreqUpdatedAt %}
                     {{ hotspot.numSpeciesTargets }}
                     {% else %}
-                    [<a href="{{ url_for('hotspot.getFreqs', id=hotspot.id) }}">get</a>]
+                    [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot.id }}, this.parentElement)">get</a>]
                     {% endif %}
                 </td>
                 <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot.id) }}">add</a>]</td>
@@ -120,4 +120,15 @@
     {% endif %}
 
 </div>
+
+<script>
+    function getSpeciesFreq(hotspotId, div) {
+        div.innerHTML = '...';
+        fetch('/api/trip/{{ trip.id }}/hotspot/' + hotspotId + '/get-freqs')
+          .then(response => response.json())
+          .then(data => {
+            div.innerHTML = data;
+          });
+    }
+</script>
 {% endblock %}

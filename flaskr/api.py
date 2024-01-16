@@ -3,9 +3,13 @@ from flask import (
 )
 from flaskr.auth import login_required
 
+from get_species_freq import retrieveSpeciesFreqs
+
+from models.Hotspots import Hotspot
+
 from repositories.HotspotRepository import getHotspotIdsForTrip
 from repositories.SpeciesRepository import getTripSpeciesByNameFragment, getSpecies
-from repositories.SpeciesFreqRepository import getTopHotspotsForSpecies
+from repositories.SpeciesFreqRepository import getTopHotspotsForSpecies, getUniqueTargetCount
 from repositories.TripRepository import getTrip
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -45,3 +49,20 @@ def speciesHotspots(tripId: int, speciesId: int):
     tripHotspotIds = getHotspotIdsForTrip(db.session, tripId)
 
     return [{'freq': h.freq, 'locId': h.locId, 'name': h.name, 'isInTrip': h.id in tripHotspotIds} for h in hotspots]
+
+
+@bp.route('/trip/<int:tripId>/hotspot/<int:hotspotId>/get-freqs')
+@login_required
+def getFreqs(tripId: int, hotspotId: int):
+    FREQ_MIN = 70
+    db = app.db
+    hotspot = db.session.query(Hotspot).get(hotspotId)
+    if hotspot is None:
+        return 'ERR'
+
+    retrieveSpeciesFreqs(hotspot.id)
+
+    #Get target count
+    trip = getTrip(db.session, tripId)
+    count = getUniqueTargetCount(db.session, [hotspotId], trip.month, FREQ_MIN)
+    return str(count)
