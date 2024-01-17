@@ -13,7 +13,7 @@ bp = Blueprint('trips', __name__)
 
 @bp.route('/trip/<int:id>')
 @login_required
-def show(id):
+def show(id: int):
     FREQ_MIN = 70  # todo make this a parameter
 
     db = app.db
@@ -49,9 +49,52 @@ def show(id):
     )
 
 
+@bp.route('/trip/<int:id>/edit')
+@login_required
+def edit(id: int):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        flash(f"Trip not found.")
+        return redirect(url_for("home.home"))
+
+    return render_template('trips/edit.html', trip=trip)
+
+
+@bp.route('/trip/<int:id>/update', methods=('GET', 'POST'))
+@login_required
+def update(id: int):
+    if request.method != 'POST':
+        return redirect(url_for("trips.show", id=id))
+
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        return redirect(url_for("home.home"))
+
+    if request.form['name'] == '':
+        flash(f"Name is required.")
+        return redirect(url_for("trips.edit", id=id))
+
+    # validate that latitude and longitude are numbers
+    if request.form['latitude'] == '' or request.form['longitude'] == '':
+        flash(f"Latitude and longitude are required.")
+        return redirect(url_for("trips.edit", id=id))
+
+
+    trip.name = request.form['name']
+    trip.month = request.form['month']
+    trip.latitude = request.form['latitude']
+    trip.longitude = request.form['longitude']
+
+    db.session.commit()
+
+    return redirect(url_for("trips.show", id=id))
+
+
 @bp.route('/trip/<int:id>/matrix')
 @login_required
-def matrix(id):
+def matrix(id: int):
     FREQ_MIN = 70  # todo make this a parameter
 
     db = app.db

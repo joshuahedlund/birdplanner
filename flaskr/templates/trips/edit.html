@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ url_for('trips.update', id=trip.id) }}">
+    <div class="form-group">
+        <label for="name">Trip Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ trip.name }}" />
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label for="latitude">Latitude</label>
+            <input type="text" class="form-control" id="latitude" name="latitude" value="{{ trip.latitude }}" />
+        </div>
+
+        <div class="col">
+            <label for="longitude">Longitude</label>
+            <input type="text" class="form-control" id="longitude" name="longitude" value="{{ trip.longitude }}" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label for="month">Month</label>
+            <select class="form-control" id="month" name="month">
+                <option value="1" {% if trip.month == 1 %}selected{% endif %}>January</option>
+                <option value="2" {% if trip.month == 2 %}selected{% endif %}>February</option>
+                <option value="3" {% if trip.month == 3 %}selected{% endif %}>March</option>
+                <option value="4" {% if trip.month == 4 %}selected{% endif %}>April</option>
+                <option value="5" {% if trip.month == 5 %}selected{% endif %}>May</option>
+                <option value="6" {% if trip.month == 6 %}selected{% endif %}>June</option>
+                <option value="7" {% if trip.month == 7 %}selected{% endif %}>July</option>
+                <option value="8" {% if trip.month == 8 %}selected{% endif %}>August</option>
+                <option value="9" {% if trip.month == 9 %}selected{% endif %}>September</option>
+                <option value="10" {% if trip.month == 10 %}selected{% endif %}>October</option>
+                <option value="11" {% if trip.month == 11 %}selected{% endif %}>November</option>
+                <option value="12" {% if trip.month == 12 %}selected{% endif %}>December</option>
+            </select>
+        </div>
+
+        <div class="col">
+            <label for="year">Year</label>
+            <input type="text" class="form-control" id="year" value="{{ trip.year }}" name="year" />
+        </div>
+    </div>
+
+    <div class="form-group">
+      <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+
+</form>
+
+{% endblock %}

@@ -2,6 +2,7 @@
 
 {% block header %}
   <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+  [<a href="{{ url_for('trips.edit', id=trip.id) }}">Edit</a>]
 {% endblock %}
 
 {% block content %}
