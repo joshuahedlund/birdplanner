@@ -21,6 +21,8 @@
         {% endfor %}
     </ul>
 
+    <p><a href="{{ url_for('trips.create') }}">Add a new trip</a></p>
+
     {% else %}
 
     <p><a href="{{ url_for('auth.register') }}">Register</a> to start planning your birding trips</p>

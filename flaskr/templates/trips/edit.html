@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
+  <h1>{% block title %}{% if trip.id %}{{ trip.name }}{% else %}Create Trip{% endif %}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<form method="post" action="{{ url_for('trips.update', id=trip.id) }}">
+<form method="post" action="{% if trip.id %}{{ url_for('trips.update', id=trip.id) }}{% else %}{{ url_for('trips.store') }}{% endif %}">
     <div class="form-group">
         <label for="name">Trip Name</label>
         <input type="text" class="form-control" id="name" name="name" value="{{ trip.name }}" />
@@ -27,6 +27,7 @@
         <div class="col">
             <label for="month">Month</label>
             <select class="form-control" id="month" name="month">
+                <option value="0" {% if trip.month == 0 %}selected{% endif %}>Select</option>
                 <option value="1" {% if trip.month == 1 %}selected{% endif %}>January</option>
                 <option value="2" {% if trip.month == 2 %}selected{% endif %}>February</option>
                 <option value="3" {% if trip.month == 3 %}selected{% endif %}>March</option>

@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
 )
 from flaskr.auth import login_required
 import pandas as pd
+
+from models.Trips import Trip
 
 from repositories.HotspotRepository import *
 from repositories.SpeciesFreqRepository import getSpeciesFreqs, getUniqueTargetCount
@@ -49,6 +53,54 @@ def show(id: int):
     )
 
 
+@bp.route('/trip/new')
+@login_required
+def create():
+    trip = Trip()
+    trip.id = 0
+    trip.name = ''
+    trip.latitude = ''
+    trip.longitude = ''
+    trip.month = 0
+    trip.year = ''
+    return render_template('trips/edit.html', trip=trip)
+
+
+@bp.route('/trip/store', methods=('GET', 'POST'))
+@login_required
+def store():
+    if request.method != 'POST':
+        return redirect(url_for("trips.create"))
+
+    db = app.db
+
+    trip = Trip()
+
+    if request.form['name'] == '':
+        flash(f"Name is required.")
+        return redirect(url_for("trips.create"))
+
+    if request.form['latitude'] == '' or request.form['longitude'] == '':
+        flash(f"Latitude and longitude are required.")
+        return redirect(url_for("trips.create"))
+
+    trip.name = request.form['name']
+    trip.month = request.form['month']
+    trip.year = request.form['year']
+    trip.latitude = request.form['latitude']
+    trip.longitude = request.form['longitude']
+
+    trip.userId = g.user.id
+    trip.createdAt = datetime.now()
+    trip.updatedAt = datetime.now()
+
+    db.session.add(trip)
+    flash(f"Trip created.")
+
+    db.session.commit()
+
+    return redirect(url_for("trips.show", id=trip.id))
+
 @bp.route('/trip/<int:id>/edit')
 @login_required
 def edit(id: int):
@@ -76,7 +128,6 @@ def update(id: int):
         flash(f"Name is required.")
         return redirect(url_for("trips.edit", id=id))
 
-    # validate that latitude and longitude are numbers
     if request.form['latitude'] == '' or request.form['longitude'] == '':
         flash(f"Latitude and longitude are required.")
         return redirect(url_for("trips.edit", id=id))
@@ -86,7 +137,7 @@ def update(id: int):
     trip.month = request.form['month']
     trip.latitude = request.form['latitude']
     trip.longitude = request.form['longitude']
-
+    trip.updatedAt = datetime.now()
     db.session.commit()
 
     return redirect(url_for("trips.show", id=id))
