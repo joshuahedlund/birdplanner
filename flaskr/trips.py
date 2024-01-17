@@ -135,6 +135,7 @@ def update(id: int):
 
     trip.name = request.form['name']
     trip.month = request.form['month']
+    trip.year = request.form['year']
     trip.latitude = request.form['latitude']
     trip.longitude = request.form['longitude']
     trip.updatedAt = datetime.now()
