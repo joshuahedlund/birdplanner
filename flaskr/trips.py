@@ -6,6 +6,7 @@ from flask import (
 from flaskr.auth import login_required
 import pandas as pd
 
+from get_hotspots import find_hotspots
 from models.Trips import Trip
 
 from repositories.HotspotRepository import *
@@ -140,6 +141,20 @@ def update(id: int):
     trip.longitude = request.form['longitude']
     trip.updatedAt = datetime.now()
     db.session.commit()
+
+    return redirect(url_for("trips.show", id=id))
+
+
+@bp.route('/trip/<int:id>/find-hotspots', methods=["POST"])
+@login_required
+def findHotspots(id: int):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        return redirect(url_for("home.home"))
+
+    dist = 30
+    find_hotspots(db.session, trip.latitude, trip.longitude, dist)
 
     return redirect(url_for("trips.show", id=id))
 

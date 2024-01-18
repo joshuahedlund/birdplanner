@@ -1,29 +1,19 @@
 from datetime import datetime
 import requests
 
-from sqlalchemy.orm import Session
-
 from config import *
 
-from models.base import init_engine
 from models.Hotspots import Hotspot
 
-MONTH = 12
+def find_hotspots(session, lat: float, lng: float, dist: int):
 
-lat = -33.87
-lng = 151.21
-dist = 60
+    url = f"https://api.ebird.org/v2/ref/hotspot/geo?fmt=json&back=30&lat={lat}&lng={lng}&dist={dist}"
 
-url = f"https://api.ebird.org/v2/ref/hotspot/geo?fmt=json&back=14&lat={lat}&lng={lng}&dist={dist}"
+    # get json data from url
+    response = requests.get(url, headers = {"X-eBirdApiToken": EBIRD_API_KEY})
 
-# get json data from url
-response = requests.get(url, headers = {"X-eBirdApiToken": EBIRD_API_KEY})
-
-# sort response by number of species
-response = sorted(response.json(), key=lambda x: x['numSpeciesAllTime'], reverse=True)
-
-engine = init_engine()
-with Session(engine) as session:
+    # sort response by number of species
+    response = sorted(response.json(), key=lambda x: x['numSpeciesAllTime'], reverse=True)
 
     for row in response:
         hotspot = session.query(Hotspot).filter(Hotspot.locId == row['locId']).first()

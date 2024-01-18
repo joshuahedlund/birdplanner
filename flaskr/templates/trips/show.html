@@ -88,6 +88,11 @@
         </table>
     {% endif %}
 
+    {% if not moreHotspots and not tripHotspots and not skipHotspots %}
+        <form method="post" action="{{ url_for('trips.findHotspots', id=trip.id) }}">
+            <input type="submit" class="btn-primary" value="Find potential hotspots">
+        </form>
+    {% endif %}
     {% if moreHotspots %}
         <h2>Potential Hotspots</h2>
 
