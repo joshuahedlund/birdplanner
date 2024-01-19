@@ -63,10 +63,12 @@ def getTopHotspotsNotConsideredForTrip(
         lat: float,
         lng: float,
         limit: int=15,
-        dist: float=0.15,
+        dist: float=50,
         minFreq: int=70,
     ) -> list:
     subquery = session.query(TripHotspot.hotspotId).filter(TripHotspot.tripId == tripId)
+
+    distDeg = dist / 111.1 #convert km to degrees
 
     hotspots = session.query(Hotspot) \
         .join(
@@ -75,8 +77,8 @@ def getTopHotspotsNotConsideredForTrip(
             isouter=True
         )\
         .filter(Hotspot.id.notin_(subquery)) \
-        .filter(func.abs(Hotspot.latitude - lat) < dist) \
-        .filter(func.abs(Hotspot.longitude - lng) < dist) \
+        .filter(func.abs(Hotspot.latitude - lat) < distDeg) \
+        .filter(func.abs(Hotspot.longitude - lng) < distDeg) \
         .order_by(Hotspot.numSpeciesAllTime.desc()) \
         .group_by(Hotspot.id) \
         .with_entities(

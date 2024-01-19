@@ -54,7 +54,33 @@
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="row">
+        <div class="col">
+            <label for="radiusKm">Radius <span title="Number of kilometers from center, to consider hotspots">&#9432;</span></label>
+            <select class="form-control" id="radiusKm" name="radiusKm">
+                <option value="20" {% if trip.radiusKm == 20 %}selected{% endif %}>20 km (12 mi) </option>
+                <option value="30" {% if trip.radiusKm == 30 %}selected{% endif %}>30 km (19 mi) </option>
+                <option value="40" {% if trip.radiusKm == 40 %}selected{% endif %}>40 km (25 mi) </option>
+                <option value="50" {% if trip.radiusKm == 50 %}selected{% endif %}>50 km (31 mi) </option>
+                <option value="60" {% if trip.radiusKm == 60 %}selected{% endif %}>60 km (37 mi) </option>
+                <option value="70" {% if trip.radiusKm == 70 %}selected{% endif %}>70 km (43 mi) </option>
+                <option value="80" {% if trip.radiusKm == 80 %}selected{% endif %}>80 km (50 mi) </option>
+                <option value="90" {% if trip.radiusKm == 90 %}selected{% endif %}>90 km (56 mi) </option>
+                <option value="100" {% if trip.radiusKm == 100 %}selected{% endif %}>100 km (62 mi) </option>
+            </select>
+        </div>
+
+        <div class="col">
+            <label for="freqMin">Minimum frequency <span title="Only show target species that are reported at this frequency or higher">&#9432;</span></label>
+            <select class="form-control" id="freqMin" name="freqMin">
+                {% for freq in range(5, 95, 5) %}
+                <option value="{{ freq }}" {% if trip.freqMin == freq %}selected{% endif %}>{{ freq }}%</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" style="margin-top:20px">
       <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 

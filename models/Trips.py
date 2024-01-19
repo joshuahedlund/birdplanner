@@ -16,6 +16,9 @@ class Trip (Base):
     longitude: Mapped[float]
     year: Mapped[int] = mapped_column(SMALLINT)
     month: Mapped[int] = mapped_column(TINYINT)
+    radiusKm: Mapped[int] = mapped_column('radius_km', default=50)
+    freqMin: Mapped[int] = mapped_column('freq_min', default=70)
+    parentTripId: Mapped[int] = mapped_column('parent_trip_id', nullable=True)
     createdAt: Mapped[datetime.datetime] = mapped_column('created_at')
     updatedAt: Mapped[datetime.datetime] = mapped_column('updated_at')
 

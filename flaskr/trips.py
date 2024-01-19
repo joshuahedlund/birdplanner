@@ -19,15 +19,13 @@ bp = Blueprint('trips', __name__)
 @bp.route('/trip/<int:id>')
 @login_required
 def show(id: int):
-    FREQ_MIN = 70  # todo make this a parameter
-
     db = app.db
     trip = getTrip(db.session, id)
     if trip is None or trip.userId != g.user.id:
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
-    tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, FREQ_MIN)
+    tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, trip.freqMin)
 
     skipHotspots = [h for h in tripHotspots if h.status == 'skip']
     tripHotspots = [h for h in tripHotspots if h.status != 'skip']
@@ -35,14 +33,14 @@ def show(id: int):
         db.session,
         id,
         trip.month,
-        minFreq=FREQ_MIN,
+        minFreq=trip.freqMin,
         lat=trip.latitude,
         lng=trip.longitude,
-        dist=0.5,
+        dist=trip.radiusKm,
         limit=50
     )
 
-    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, FREQ_MIN)
+    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, trip.freqMin)
 
     return render_template(
         'trips/show.html',
@@ -88,6 +86,8 @@ def store():
     trip.name = request.form['name']
     trip.month = request.form['month']
     trip.year = request.form['year']
+    trip.radiusKm = request.form['radiusKm']
+    trip.freqMin = request.form['freqMin']
     trip.latitude = request.form['latitude']
     trip.longitude = request.form['longitude']
 
@@ -137,6 +137,8 @@ def update(id: int):
     trip.name = request.form['name']
     trip.month = request.form['month']
     trip.year = request.form['year']
+    trip.radiusKm = request.form['radiusKm']
+    trip.freqMin = request.form['freqMin']
     trip.latitude = request.form['latitude']
     trip.longitude = request.form['longitude']
     trip.updatedAt = datetime.now()
@@ -153,7 +155,7 @@ def findHotspots(id: int):
     if trip is None or trip.userId != g.user.id:
         return redirect(url_for("home.home"))
 
-    dist = 30
+    dist = trip.radiusKm
     find_hotspots(db.session, trip.latitude, trip.longitude, dist)
 
     return redirect(url_for("trips.show", id=id))
@@ -162,8 +164,6 @@ def findHotspots(id: int):
 @bp.route('/trip/<int:id>/matrix')
 @login_required
 def matrix(id: int):
-    FREQ_MIN = 70  # todo make this a parameter
-
     db = app.db
     trip = getTrip(db.session, id)
     if trip is None or trip.userId != g.user.id:
@@ -201,8 +201,8 @@ def matrix(id: int):
     hotspotMatrix = hotspotMatrix[['species'] + [col for col in hotspotMatrix.columns if col != 'species']]
     hotspotMatrix.rename(columns={'species': 'Species'}, inplace=True)
 
-    # filter out species with a maximum value less than FREQ_MIN
-    hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= FREQ_MIN]
+    # filter out species with a maximum value less than min freq
+    hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= trip.freqMin]
 
     # resort index starting with 1
     hotspotMatrix.index = range(1, len(hotspotMatrix) + 1)
