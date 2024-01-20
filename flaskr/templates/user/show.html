@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>Account Settings ({{ user.email }})</h1>
+{% endblock %}
+
+{% block content %}
+
+<h2>Species List</h2>
+<p><i>Species on your list will be excluded from trip matrix and target counts</i></p>
+
+<ul>
+{% for species in userSpecies %}
+    <li>{{ species.name }} [<a href="{{ url_for('user.removeSpecies', id=species.id) }}">remove</a>]</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
+

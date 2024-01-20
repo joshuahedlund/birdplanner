@@ -12,6 +12,7 @@ from models.Trips import Trip
 from repositories.HotspotRepository import *
 from repositories.SpeciesFreqRepository import getSpeciesFreqs, getUniqueTargetCount
 from repositories.TripRepository import getTrip
+from repositories.UserSpeciesRepository import getUserSpeciesList
 
 bp = Blueprint('trips', __name__)
 
@@ -172,9 +173,15 @@ def matrix(id: int):
 
     hotspots = getTripHotspotsWithFreqs(db.session, id)
     curatedHotspots = []
+    speciesHashMap = {}
     for hotspot in hotspots:
         speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month)
-        speciesList = pd.DataFrame(speciesFreqs, columns=['species', 'freq'])
+        speciesHashMap = {**speciesHashMap, **{s.id: s.name for s in speciesFreqs}}
+
+        # make dataframe of species id and freqs but drop name
+        speciesList = pd.DataFrame(speciesFreqs).drop(columns=['name'])
+        speciesList = speciesList.rename(columns={'id': 'speciesId'})
+
         curatedHotspots.append(
             {'name': '<a target="_blank" href="https://ebird.org/hotspot/' + hotspot.locId + '">' + hotspot.name + '</a>',
              'species': speciesList,
@@ -195,14 +202,29 @@ def matrix(id: int):
         if hotspotMatrix.empty:
             hotspotMatrix = hotspot['species']
         else:
-            hotspotMatrix = hotspotMatrix.merge(hotspot['species'], how='outer', on='species')
+            hotspotMatrix = hotspotMatrix.merge(hotspot['species'], how='outer', on='speciesId')
 
     # move species column to first column of dataframe
-    hotspotMatrix = hotspotMatrix[['species'] + [col for col in hotspotMatrix.columns if col != 'species']]
-    hotspotMatrix.rename(columns={'species': 'Species'}, inplace=True)
+    hotspotMatrix = hotspotMatrix[['speciesId'] + [col for col in hotspotMatrix.columns if col != 'speciesId']]
 
     # filter out species with a maximum value less than min freq
     hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= trip.freqMin]
+
+    # filter out species user has already seen
+    excludeSpecies = getUserSpeciesList(db.session, trip.userId)
+    excludeSpeciesIds = [s.speciesId for s in excludeSpecies]
+    hotspotMatrix = hotspotMatrix[~hotspotMatrix['speciesId'].isin(excludeSpeciesIds)]
+
+    # add column with an html form to remove the species and move it to the front
+    hotspotMatrix['X'] = '<form method="post" action="/user/species/' + hotspotMatrix['speciesId'].astype(str) + '/add">' \
+                            '<button type="submit" class="btn btn-primary btn-sm">X</button>' \
+                            '</form>'
+    hotspotMatrix = hotspotMatrix[['X'] + [col for col in hotspotMatrix.columns if col != 'X']]
+
+    # replace speciesId with species name
+    hotspotMatrix['speciesId'] = hotspotMatrix['speciesId'].map(speciesHashMap)
+    hotspotMatrix.rename(columns={'speciesId': 'Species'}, inplace=True)
+
 
     # resort index starting with 1
     hotspotMatrix.index = range(1, len(hotspotMatrix) + 1)
@@ -210,7 +232,7 @@ def matrix(id: int):
     return render_template(
         'trips/matrix.html',
         trip=trip,
-        matrixTable=hotspotMatrix.to_html(na_rep='', classes="table", float_format=lambda x: '%.0f' % x, escape=False)
+        matrixTable=hotspotMatrix.to_html(na_rep='', classes="table table-actions", float_format=lambda x: '%.0f' % x, escape=False)
     )
 
 

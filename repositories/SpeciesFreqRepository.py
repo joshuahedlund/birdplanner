@@ -16,7 +16,7 @@ def getSpeciesFreqs(session: Session, hotspotId: int, month: int, freq: int = No
     if freq:
         speciesFreqs = speciesFreqs.filter(SpeciesFreq.freq >= freq)
     speciesFreqs = speciesFreqs.join(SpeciesFreq.species)\
-        .with_entities(Species.name, SpeciesFreq.freq)\
+        .with_entities(Species.id, Species.name, SpeciesFreq.freq)\
         .all()
 
     return speciesFreqs

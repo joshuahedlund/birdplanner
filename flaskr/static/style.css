@@ -25,6 +25,7 @@ nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
 .content textarea { min-height: 12em; resize: vertical; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
+table.table-actions form { margin:0 }
 tr.highlight, p.highlight { background-color: lightgray; }
 .tab-content { margin: 10px; overflow: scroll; }
 
