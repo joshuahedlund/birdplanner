@@ -26,11 +26,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import home, auth, api, species, trips, user
+    from . import home, auth, api, trips, user
     app.register_blueprint(home.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(api.bp)
-    app.register_blueprint(species.bp)
     app.register_blueprint(trips.bp)
     app.register_blueprint(user.bp)
 

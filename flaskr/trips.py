@@ -26,12 +26,13 @@ def show(id: int):
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
-    tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, trip.freqMin)
+    tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, trip.freqMin, g.user.id)
 
     skipHotspots = [h for h in tripHotspots if h.status == 'skip']
     tripHotspots = [h for h in tripHotspots if h.status != 'skip']
     moreHotspots = getTopHotspotsNotConsideredForTrip(
         db.session,
+        g.user.id,
         id,
         trip.month,
         minFreq=trip.freqMin,
@@ -41,7 +42,7 @@ def show(id: int):
         limit=50
     )
 
-    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, trip.freqMin)
+    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, trip.freqMin, g.user.id)
 
     return render_template(
         'trips/show.html',

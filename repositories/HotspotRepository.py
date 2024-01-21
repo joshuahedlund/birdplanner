@@ -8,17 +8,21 @@ from sqlalchemy import func, or_, and_
 
 from models.Hotspots import Hotspot
 from models.SpeciesFreq import SpeciesFreq
+from models.UserSpecies import UserSpecies
 from models.TripHotspots import TripHotspot
 
 
-def getAllHotspotsForTrip(session: Session, tripId: int, tripMonth: int, minFreq: int) -> list:
+def getAllHotspotsForTrip(session: Session, tripId: int, tripMonth: int, minFreq: int, userId: int) -> list:
     hotspots = session.query(Hotspot) \
         .join(TripHotspot) \
-        .join(
+        .join( # get target species that match trip criteria
             SpeciesFreq,
             and_(SpeciesFreq.hotspotId == Hotspot.id, SpeciesFreq.month == tripMonth, SpeciesFreq.freq >= minFreq),
             isouter=True
         ).filter(TripHotspot.tripId == tripId) \
+        .filter(or_(SpeciesFreq.speciesId == None, SpeciesFreq.speciesId.notin_(  # exclude species already seen by user
+            session.query(UserSpecies.speciesId).filter(UserSpecies.userId == userId)
+        ))) \
         .order_by(func.count(SpeciesFreq.id).desc()) \
         .group_by(Hotspot.id) \
         .with_entities(
@@ -58,6 +62,7 @@ def getTripHotspotsWithFreqs(session: Session, tripId: int) -> list:
 
 def getTopHotspotsNotConsideredForTrip(
         session: Session,
+        userId: int,
         tripId: int,
         tripMonth: int,
         lat: float,
@@ -79,6 +84,9 @@ def getTopHotspotsNotConsideredForTrip(
         .filter(Hotspot.id.notin_(subquery)) \
         .filter(func.abs(Hotspot.latitude - lat) < distDeg) \
         .filter(func.abs(Hotspot.longitude - lng) < distDeg) \
+        .filter(or_(SpeciesFreq.speciesId == None, SpeciesFreq.speciesId.notin_(  # exclude species already seen by user
+            session.query(UserSpecies.speciesId).filter(UserSpecies.userId == userId)
+        ))) \
         .order_by(Hotspot.numSpeciesAllTime.desc()) \
         .group_by(Hotspot.id) \
         .with_entities(

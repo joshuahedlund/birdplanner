@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from models.Species import Species
 from models.SpeciesFreq import SpeciesFreq
+from models.UserSpecies import UserSpecies
+
 
 def storeSpeciesFreq(session: Session, hotspotId: int, speciesId: int, freq: int, month: int):
     speciesFreq = SpeciesFreq(speciesId=speciesId, freq=freq, month=month, hotspotId=hotspotId)
@@ -39,10 +41,13 @@ def getTopHotspotsForSpecies(session: Session, speciesId: int, month: int, limit
     return hotspots
 
 
-def getUniqueTargetCount(session: Session, hotspotIds: list, month: int, minFreq: int) -> int:
+def getUniqueTargetCount(session: Session, hotspotIds: list, month: int, minFreq: int, userId: int) -> int:
     return session.query(SpeciesFreq.speciesId)\
         .filter(SpeciesFreq.month == month)\
         .filter(SpeciesFreq.freq >= minFreq)\
         .filter(SpeciesFreq.hotspotId.in_(hotspotIds))\
+        .filter(SpeciesFreq.speciesId.notin_(
+            session.query(UserSpecies.speciesId).filter(UserSpecies.userId == userId)
+        ))\
         .distinct()\
         .count()
