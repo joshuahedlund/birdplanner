@@ -217,9 +217,7 @@ def matrix(id: int):
     hotspotMatrix = hotspotMatrix[~hotspotMatrix['speciesId'].isin(excludeSpeciesIds)]
 
     # add column with an html form to remove the species and move it to the front
-    hotspotMatrix['X'] = '<form method="post" action="/user/species/' + hotspotMatrix['speciesId'].astype(str) + '/add">' \
-                            '<button type="submit" class="btn btn-primary btn-sm">X</button>' \
-                            '</form>'
+    hotspotMatrix['X'] = '<button type="button" class="btn btn-primary btn-sm userSpeciesAdd" data-speciesid="' + hotspotMatrix['speciesId'].astype(str) +'">X</button>'
     hotspotMatrix = hotspotMatrix[['X'] + [col for col in hotspotMatrix.columns if col != 'X']]
 
     # replace speciesId with species name

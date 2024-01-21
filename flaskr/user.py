@@ -24,7 +24,7 @@ def addSpecies(id: int):
 
     storeUserSpecies(app.db.session, g.user.id, id)
 
-    return redirect(url_for("user.show")) #todo change to ajax and have FE refresh current page
+    return
 
 @bp.route('/user/species/<int:id>/delete', methods=('GET',)) #todo change to post
 @login_required

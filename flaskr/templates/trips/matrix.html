@@ -18,4 +18,18 @@
 <div class="tab-content">
     {{ matrixTable|safe }}
 </div>
+
+<script>
+    document.querySelectorAll('.userSpeciesAdd').forEach(el => el.addEventListener('click', function() {
+        this.setAttribute('disabled', 'disabled');
+        this.parentNode.innerHTML = '<img src="/static/images/loading.gif" width="20" height="20" />';
+
+        fetch('/user/species/' + this.getAttribute('data-speciesid') + '/add', {
+            method: 'POST',
+        }).then(
+            //reload page
+            window.location.reload()
+        );
+    }));
+</script>
 {% endblock %}
