@@ -10,6 +10,7 @@ def getUserSpeciesList(session: Session, userId: int) -> list:
         .filter(UserSpecies.userId == userId) \
         .join(UserSpecies.species) \
         .with_entities(UserSpecies.id, UserSpecies.speciesId, Species.name) \
+        .order_by(Species.name) \
         .all()
 
     return userSpecies

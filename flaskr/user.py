@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app, Response
 )
 from flaskr.auth import login_required
 
@@ -20,22 +20,20 @@ def show():
 def addSpecies(id: int):
     userSpecies = getUserSpecies(app.db.session, g.user.id, id)
     if userSpecies is not None:
-        return
+        return Response(status=404)
 
     storeUserSpecies(app.db.session, g.user.id, id)
 
-    return
+    return Response(status=200)
 
-@bp.route('/user/species/<int:id>/delete', methods=('GET',)) #todo change to post
+@bp.route('/user/species/<int:id>/delete', methods=('POST',))
 @login_required
 def removeSpecies(id: int):
     userSpecies = getUserSpecies(app.db.session, g.user.id, id)
     if userSpecies is None:
-        flash(f"Species not found.")
-        return redirect(url_for("user.show"))
+        return Response(status=404)
 
     app.db.session.delete(userSpecies)
     app.db.session.commit()
 
-    flash(f"Species deleted.")
-    return redirect(url_for("user.show"))
+    return Response(status=200)

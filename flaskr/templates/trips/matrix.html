@@ -26,10 +26,9 @@
 
         fetch('/user/species/' + this.getAttribute('data-speciesid') + '/add', {
             method: 'POST',
-        }).then(
-            //reload page
+        }).then(function(){
             window.location.reload()
-        );
+        });
     }));
 </script>
 {% endblock %}

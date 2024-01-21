@@ -11,9 +11,27 @@
 
 <ul>
 {% for species in userSpecies %}
-    <li>{{ species.name }} [<a href="{{ url_for('user.removeSpecies', id=species.id) }}">remove</a>]</li>
+    <li>
+        <span><button type="button" class="btn btn-primary btn-sm userSpeciesRemove" data-speciesid="{{ species.id }}">X</button></span>
+        {{ species.name }} [<a href="{{ url_for('user.removeSpecies', id=species.id) }}">remove</a>]
+    </li>
 {% endfor %}
 </ul>
+
+<script>
+    document.querySelectorAll('.userSpeciesRemove').forEach(el => el.addEventListener('click', function() {
+        this.setAttribute('disabled', 'disabled');
+        this.parentNode.innerHTML = '<img src="/static/images/loading.gif" width="20" height="20" />';
+        console.log("fetch");
+        fetch('/user/species/' + this.getAttribute('data-speciesid') + '/delete', {
+            method: 'POST',
+        }).then(function() {
+            console.log("reload");
+            //reload page
+            window.location.reload();
+        });
+    }));
+</script>
 
 {% endblock %}
 
