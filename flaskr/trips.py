@@ -10,7 +10,7 @@ from get_hotspots import find_hotspots
 from models.Trips import Trip
 
 from repositories.HotspotRepository import *
-from repositories.SpeciesFreqRepository import getSpeciesFreqs, getUniqueTargetCount
+from repositories.SpeciesFreqRepository import getSpeciesFreqs, getTargetSpeciesListForHotspots
 from repositories.TripRepository import getTrip
 from repositories.UserSpeciesRepository import getUserSpeciesList
 
@@ -42,14 +42,25 @@ def show(id: int):
         limit=50
     )
 
-    uniqueTargetCount = getUniqueTargetCount(db.session, [h.id for h in tripHotspots], trip.month, trip.freqMin, g.user.id)
+    userSpeciesList = getUserSpeciesList(db.session, g.user.id)
+    userSpeciesIds = [s.speciesId for s in userSpeciesList]
+
+    targetSpeciesList = getTargetSpeciesListForHotspots(db.session, [h.id for h in tripHotspots], trip.month, trip.freqMin, g.user.id)
+    targetSpeciesIds = [s.speciesId for s in targetSpeciesList]
+    uniqueTargetCount = len(targetSpeciesIds)
+
+    moreHotspotWrap = []
+    for hotspot in moreHotspots:
+        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin)
+        surplusSpeciesIds = [s.id for s in speciesFreqs if s.id not in targetSpeciesIds and s.id not in userSpeciesIds]
+        moreHotspotWrap.append({'hotspot': hotspot, 'surplusSpeciesCount': len(surplusSpeciesIds)})
 
     return render_template(
         'trips/show.html',
         trip=trip,
         tripHotspots=tripHotspots,
         skipHotspots=skipHotspots,
-        moreHotspots=moreHotspots,
+        moreHotspots=moreHotspotWrap,
         uniqueTargetCount=uniqueTargetCount
     )
 

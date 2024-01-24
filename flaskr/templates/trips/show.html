@@ -52,6 +52,7 @@
             </td>
             <td></td>
             <td><b>{{ uniqueTargetCount }}</b></td>
+            <td></td>
         </tr>
       </tbody>
     </table>
@@ -102,22 +103,24 @@
                 <th>Hotspot</th>
                 <th>#AllTime</th>
                 <th>#Targets <span title="Number of species with {{ trip.freqMin }}%+ frequency the month of your trip">&#9432;</span></th>
+                <th>#Surplus</th>
                 <th></th>
             </tr>
           </thead>
           <tbody>
              {% for hotspot in moreHotspots %}
             <tr>
-              <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot.locId }}">{{ hotspot.name }}</a></td>
-                <td>{{ hotspot.numSpeciesAllTime }}</td>
+              <td><a target="_blank" href="{{ 'https://ebird.org/hotspot/' + hotspot['hotspot'].locId }}">{{ hotspot['hotspot'].name }}</a></td>
+                <td>{{ hotspot['hotspot'].numSpeciesAllTime }}</td>
                 <td>
-                    {% if hotspot.speciesFreqUpdatedAt %}
-                    {{ hotspot.numSpeciesTargets }}
+                    {% if hotspot['hotspot'].speciesFreqUpdatedAt %}
+                    {{ hotspot['hotspot'].numSpeciesTargets }}
                     {% else %}
-                    [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot.id }}, this.parentElement)">get</a>]
+                    [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot['hotspot'].id }}, this.parentElement)">get</a>]
                     {% endif %}
                 </td>
-                <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot.id) }}">add</a>]</td>
+                <td>{{ hotspot['surplusSpeciesCount'] }}</td>
+                <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot['hotspot'].id) }}">add</a>]</td>
             </tr>
             {% endfor %}
           </tbody>

@@ -51,3 +51,15 @@ def getUniqueTargetCount(session: Session, hotspotIds: list, month: int, minFreq
         ))\
         .distinct()\
         .count()
+
+
+def getTargetSpeciesListForHotspots(session: Session, hotspotIds: list, month: int, minFreq: int, userId: int) -> list:
+    return session.query(SpeciesFreq.speciesId)\
+        .filter(SpeciesFreq.month == month)\
+        .filter(SpeciesFreq.freq >= minFreq)\
+        .filter(SpeciesFreq.hotspotId.in_(hotspotIds))\
+        .filter(SpeciesFreq.speciesId.notin_(
+            session.query(UserSpecies.speciesId).filter(UserSpecies.userId == userId)
+        ))\
+        .distinct()\
+        .all()
