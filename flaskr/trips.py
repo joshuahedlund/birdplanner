@@ -63,6 +63,7 @@ def show(id: int):
 
     return render_template(
         'trips/show.html',
+        page='show',
         trip=trip,
         tripHotspots=tripHotspots,
         skipHotspots=skipHotspotWrap,
@@ -247,6 +248,7 @@ def matrix(id: int):
 
     return render_template(
         'trips/matrix.html',
+        page='matrix',
         trip=trip,
         matrixTable=hotspotMatrix.to_html(na_rep='', classes="table table-actions", float_format=lambda x: '%.0f' % x, escape=False)
     )
@@ -261,7 +263,11 @@ def species(id):
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
-    return render_template('trips/species.html', trip=trip)
+    return render_template(
+        'trips/species.html',
+        page='species',
+        trip=trip
+    )
 
 
 @bp.route('/trip/<int:id>/skip/<int:hotspotId>')

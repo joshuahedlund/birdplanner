@@ -1,19 +1,5 @@
 {% extends 'trips/show.html' %}
 
-{% block tabs %}
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="{{ url_for('trips.show', id=trip.id) }}">Hotspots</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="{{ url_for('trips.matrix', id=trip.id) }}">Matrix</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="{{ url_for('trips.species', id=trip.id) }}">Species</a>
-    </li>
-</ul>
-{% endblock %}
-
 {% block tabContent %}
 <div class="tab-content">
     <input type="text" id="autocompleteInput" placeholder="Type to search...">
