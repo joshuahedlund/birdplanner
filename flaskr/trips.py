@@ -49,6 +49,12 @@ def show(id: int):
     targetSpeciesIds = [s.speciesId for s in targetSpeciesList]
     uniqueTargetCount = len(targetSpeciesIds)
 
+    skipHotspotWrap = []
+    for hotspot in skipHotspots:
+        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin)
+        surplusSpeciesIds = [s.id for s in speciesFreqs if s.id not in targetSpeciesIds and s.id not in userSpeciesIds]
+        skipHotspotWrap.append({'hotspot': hotspot, 'surplusSpeciesCount': len(surplusSpeciesIds)})
+
     moreHotspotWrap = []
     for hotspot in moreHotspots:
         speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin)
@@ -59,7 +65,7 @@ def show(id: int):
         'trips/show.html',
         trip=trip,
         tripHotspots=tripHotspots,
-        skipHotspots=skipHotspots,
+        skipHotspots=skipHotspotWrap,
         moreHotspots=moreHotspotWrap,
         uniqueTargetCount=uniqueTargetCount
     )
