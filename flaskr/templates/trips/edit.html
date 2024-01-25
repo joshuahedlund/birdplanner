@@ -7,13 +7,8 @@
 {% block content %}
 <form method="post" action="{% if trip.id %}{{ url_for('trips.update', id=trip.id) }}{% else %}{{ url_for('trips.store') }}{% endif %}">
     <div class="form-group">
-        <label for="name">Trip Name</label>
+        <label for="name">Location</label>
         <input type="text" class="form-control" id="name" name="name" value="{{ trip.name }}" />
-    </div>
-
-    <div class="form-group">
-        <label for="location">Location (type to generate lat/lng)</label>
-        <input type="text" class="form-control" id="location" name="location" />
     </div>
 
     <div class="row">
@@ -106,7 +101,7 @@
            .catch(error => console.error('Error:', error));
     }
 
-    const locationInput = document.getElementById('location');
+    const locationInput = document.getElementById('name');
     locationInput.addEventListener('change', function() {
         getCoordinates(this.value);
     });

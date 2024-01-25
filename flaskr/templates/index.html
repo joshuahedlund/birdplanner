@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+
 {% block header %}
   <h1>{% block title %}Welcome{% endblock %}</h1>
 {% endblock %}
@@ -15,7 +16,7 @@
 
     <ul>
         {% for t in trips %}
-        <li><a href="{{ url_for('trips.show', id=t.id) }}">{{ t.name }}</a>
+        <li><a href="{{ url_for('trips.settings', id=t.id) }}">{{ t.name }}</a>
             ({{ t.month }}/{{ t.year }})
         </li>
         {% endfor %}

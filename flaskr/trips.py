@@ -17,9 +17,21 @@ from repositories.UserSpeciesRepository import getUserSpeciesList
 bp = Blueprint('trips', __name__)
 
 
-@bp.route('/trip/<int:id>')
+@bp.route('/trip/<int:id>/settings')
 @login_required
-def show(id: int):
+def settings(id: int):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        flash(f"Trip not found.")
+        return redirect(url_for("home.home"))
+
+    return render_template('trips/settings.html', trip=trip)
+
+
+@bp.route('/trip/<int:id>/hotspots')
+@login_required
+def hotspots(id: int):
     db = app.db
     trip = getTrip(db.session, id)
     if trip is None or trip.userId != g.user.id:
@@ -120,7 +132,7 @@ def store():
 
     db.session.commit()
 
-    return redirect(url_for("trips.show", id=trip.id))
+    return redirect(url_for("trips.settings", id=trip.id))
 
 @bp.route('/trip/<int:id>/edit')
 @login_required
@@ -138,7 +150,7 @@ def edit(id: int):
 @login_required
 def update(id: int):
     if request.method != 'POST':
-        return redirect(url_for("trips.show", id=id))
+        return redirect(url_for("trips.settings", id=id))
 
     db = app.db
     trip = getTrip(db.session, id)
@@ -164,7 +176,7 @@ def update(id: int):
     trip.updatedAt = datetime.now()
     db.session.commit()
 
-    return redirect(url_for("trips.show", id=id))
+    return redirect(url_for("trips.settings", id=id))
 
 
 @bp.route('/trip/<int:id>/find-hotspots', methods=["POST"])
@@ -178,7 +190,7 @@ def findHotspots(id: int):
     dist = trip.radiusKm
     find_hotspots(db.session, trip.latitude, trip.longitude, dist)
 
-    return redirect(url_for("trips.show", id=id))
+    return redirect(url_for("trips.hotspots", id=id))
 
 
 @bp.route('/trip/<int:id>/matrix')
@@ -280,7 +292,7 @@ def skip(id, hotspotId):
         return redirect(url_for("home.home"))
 
     skipHotspot(db.session, id, hotspotId)
-    return redirect(url_for("trips.show", id=id))
+    return redirect(url_for("trips.hotspots", id=id))
 
 
 @bp.route('/trip/<int:id>/visit/<int:hotspotId>')
@@ -293,7 +305,7 @@ def visit(id, hotspotId):
         return redirect(url_for("home.home"))
 
     visitHotspot(db.session, id, hotspotId)
-    return redirect(url_for("trips.show", id=id))
+    return redirect(url_for("trips.hotspots", id=id))
 
 @bp.route('/trip/<int:id>/add/<int:hotspotId>')
 @login_required
@@ -305,4 +317,4 @@ def add(id, hotspotId):
         return redirect(url_for("home.home"))
 
     addHotspot(db.session, id, hotspotId)
-    return redirect(url_for("trips.show", id=id))
+    return redirect(url_for("trips.hotspots", id=id))

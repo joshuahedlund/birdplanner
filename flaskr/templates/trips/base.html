@@ -2,21 +2,17 @@
 
 {% block header %}
   <h1>{% block title %}{{ trip.name }}{% endblock %}</h1>
-  [<a href="{{ url_for('trips.edit', id=trip.id) }}">Edit</a>]
 {% endblock %}
 
 {% block content %}
-  <p>
-      When? {{ trip.month }}/{{ trip.year }}<br/>
-      Where? {{ trip.latitude }}, {{ trip.longitude }}
-  </p>
-
-  <hr/>
 
 {% block tabs %}
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a class="nav-link {% if page == 'show' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.show', id=trip.id) }}">Hotspots</a>
+        <a class="nav-link {% if page == 'settings' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.settings', id=trip.id) }}">Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if page == 'show' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.hotspots', id=trip.id) }}">Hotspots</a>
     </li>
     <li class="nav-item">
         <a class="nav-link {% if page == 'matrix' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.matrix', id=trip.id) }}">Matrix</a>

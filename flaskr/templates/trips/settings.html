@@ -1,0 +1,36 @@
+{% extends 'trips/base.html' %}
+
+
+{% block css %}
+<link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+{% endblock %}
+
+
+{% block tabContent %}
+<div class="tab-content">
+    <h2>Trip Settings [<a href="{{ url_for('trips.edit', id=trip.id) }}">Edit</a>]</h2>
+
+  <p>
+      When? {{ trip.month }}/{{ trip.year }}<br/>
+  </p>
+
+    <h3>Primary Radius</h3>
+    <p>
+        ({{ trip.latitude }}, {{ trip.longitude }}) /
+        {{ trip.radiusKm }} km
+    </p>
+
+    <div id="osm_primary" style="width:300px;height:300px"></div>
+
+</div>
+
+<script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script>
+ var map = new L.map('osm_primary', {
+    center: [{{ trip.latitude }}, {{ trip.longitude }}],
+    zoom: 9
+ });
+ var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+ map.addLayer(layer);
+</script>
+{% endblock %}
