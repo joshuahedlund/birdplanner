@@ -40,6 +40,8 @@ def hotspots(id: int):
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
+    subTrips = getSubTripsForTrip(db.session, id)
+
     tripHotspots = getAllHotspotsForTrip(db.session, id, trip.month, trip.freqMin, g.user.id)
 
     skipHotspots = [h for h in tripHotspots if h.status == 'skip']
@@ -53,8 +55,29 @@ def hotspots(id: int):
         lat=trip.latitude,
         lng=trip.longitude,
         dist=trip.radiusKm,
-        limit=50
+        limit=80
     )
+    if len(subTrips) > 0:
+        for subTrip in subTrips:
+            #TODO see if some queries can be combined
+            subTripHotspots = getAllHotspotsForTrip(db.session, subTrip.id, subTrip.month, subTrip.freqMin, g.user.id)
+            tripHotspots = tripHotspots + subTripHotspots
+            skipHotspots = skipHotspots + [h for h in subTripHotspots if h.status == 'skip']
+            moreHotspots = moreHotspots + getTopHotspotsNotConsideredForTrip(
+                db.session,
+                g.user.id,
+                trip.id,
+                subTrip.month,
+                minFreq=subTrip.freqMin,
+                lat=subTrip.latitude,
+                lng=subTrip.longitude,
+                dist=subTrip.radiusKm,
+                limit=80
+            )
+        # Filter duplicates
+        tripHotspots = list({h.id: h for h in tripHotspots}.values())
+        skipHotspots = list({h.id: h for h in skipHotspots}.values())
+        moreHotspots = list({h.id: h for h in moreHotspots}.values())
 
     userSpeciesList = getUserSpeciesList(db.session, g.user.id)
     userSpeciesIds = [s.speciesId for s in userSpeciesList]
@@ -65,15 +88,17 @@ def hotspots(id: int):
 
     skipHotspotWrap = []
     for hotspot in skipHotspots:
-        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin)
+        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin) #todo combine query
         surplusSpeciesIds = [s.id for s in speciesFreqs if s.id not in targetSpeciesIds and s.id not in userSpeciesIds]
         skipHotspotWrap.append({'hotspot': hotspot, 'surplusSpeciesCount': len(surplusSpeciesIds)})
+        skipHotspotWrap = sorted(skipHotspotWrap, key=lambda x: x['surplusSpeciesCount'], reverse=True)
 
     moreHotspotWrap = []
     for hotspot in moreHotspots:
-        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin)
+        speciesFreqs = getSpeciesFreqs(db.session, hotspot.id, trip.month, freq=trip.freqMin) #todo combine query
         surplusSpeciesIds = [s.id for s in speciesFreqs if s.id not in targetSpeciesIds and s.id not in userSpeciesIds]
         moreHotspotWrap.append({'hotspot': hotspot, 'surplusSpeciesCount': len(surplusSpeciesIds)})
+        moreHotspotWrap = sorted(moreHotspotWrap, key=lambda x: x['surplusSpeciesCount'], reverse=True)
 
     return render_template(
         'trips/show.html',
