@@ -1,11 +1,22 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}{% if trip.id %}{{ trip.name }}{% else %}Create Trip{% endif %}{% endblock %}</h1>
+  <h1>{% block title %}
+      {% if trip.id %}
+        {{ trip.name }}
+      {% elif trip.parentTripId %}
+        Add Secondary Trip Zone
+      {% else %}
+        Create Trip
+      {% endif %}
+      {% endblock %}
+  </h1>
 {% endblock %}
 
 {% block content %}
 <form method="post" action="{% if trip.id %}{{ url_for('trips.update', id=trip.id) }}{% else %}{{ url_for('trips.store') }}{% endif %}">
+    <input type="hidden" name="parentTripId" value="{{ trip.parentTripId }}" />
+
     <div class="form-group">
         <label for="name">Location</label>
         <input type="text" class="form-control" id="name" name="name" value="{{ trip.name }}" />

@@ -11,7 +11,7 @@ from models.Trips import Trip
 
 from repositories.HotspotRepository import *
 from repositories.SpeciesFreqRepository import getSpeciesFreqs, getTargetSpeciesListForHotspots
-from repositories.TripRepository import getTrip
+from repositories.TripRepository import getTrip, getSubTripsForTrip
 from repositories.UserSpeciesRepository import getUserSpeciesList
 
 bp = Blueprint('trips', __name__)
@@ -22,11 +22,13 @@ bp = Blueprint('trips', __name__)
 def settings(id: int):
     db = app.db
     trip = getTrip(db.session, id)
+    subTrips = getSubTripsForTrip(db.session, id)
+
     if trip is None or trip.userId != g.user.id:
         flash(f"Trip not found.")
         return redirect(url_for("home.home"))
 
-    return render_template('trips/settings.html', trip=trip)
+    return render_template('trips/settings.html', trip=trip, subTrips=subTrips)
 
 
 @bp.route('/trip/<int:id>/hotspots')
@@ -94,6 +96,7 @@ def create():
     trip.longitude = ''
     trip.month = 0
     trip.year = ''
+    trip.freqMin = 50
     return render_template('trips/edit.html', trip=trip)
 
 
@@ -115,6 +118,12 @@ def store():
         flash(f"Latitude and longitude are required.")
         return redirect(url_for("trips.create"))
 
+    parentTripId = int(request.form['parentTripId'])
+    if parentTripId > 0:
+        parentTrip = getTrip(db.session, parentTripId)
+        if parentTrip is None or parentTrip.userId != g.user.id:
+            parentTripId = 0
+
     trip.name = request.form['name']
     trip.month = request.form['month']
     trip.year = request.form['year']
@@ -123,16 +132,21 @@ def store():
     trip.latitude = request.form['latitude']
     trip.longitude = request.form['longitude']
 
+    trip.parentTripId = parentTripId
     trip.userId = g.user.id
     trip.createdAt = datetime.now()
     trip.updatedAt = datetime.now()
 
     db.session.add(trip)
-    flash(f"Trip created.")
+
+    if parentTripId > 0:
+        flash(f"Secondary zone created.")
+    else:
+        flash(f"Trip created.")
 
     db.session.commit()
 
-    return redirect(url_for("trips.settings", id=trip.id))
+    return redirect(url_for("trips.settings", id=trip.parentTripId or trip.id))
 
 @bp.route('/trip/<int:id>/edit')
 @login_required
@@ -176,8 +190,29 @@ def update(id: int):
     trip.updatedAt = datetime.now()
     db.session.commit()
 
-    return redirect(url_for("trips.settings", id=id))
+    return redirect(url_for("trips.settings", id=trip.parentTripId or trip.id))
 
+
+@bp.route('/trip/<int:id>/sub/new')
+@login_required
+def createSub(id: int):
+    db = app.db
+    trip = getTrip(db.session, id)
+    if trip is None or trip.userId != g.user.id:
+        return redirect(url_for("home.home"))
+
+    sub = Trip()
+    sub.id = 0
+    sub.parentTripId = id
+    sub.name = ''
+    sub.latitude = ''
+    sub.longitude = ''
+    sub.month = trip.month
+    sub.year = trip.year
+    sub.radiusKm = trip.radiusKm
+    sub.freqMin = trip.freqMin
+
+    return render_template('trips/edit.html', trip=sub)
 
 @bp.route('/trip/<int:id>/find-hotspots', methods=["POST"])
 @login_required

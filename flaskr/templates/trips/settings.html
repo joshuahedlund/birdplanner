@@ -14,13 +14,32 @@
       When? {{ trip.month }}/{{ trip.year }}<br/>
   </p>
 
-    <h3>Primary Radius</h3>
+    <h3>Primary Area</h3>
     <p>
         ({{ trip.latitude }}, {{ trip.longitude }}) /
         {{ trip.radiusKm }} km
     </p>
 
     <div id="osm_primary" style="width:300px;height:300px"></div>
+
+    <h3>
+        Secondary Areas
+        <span title="To consider additional nearby areas without including all hotspots in between, you can add secondary areas.">&#9432;</span>
+    </h3>
+    {% if subTrips %}
+    <ul>
+        {% for t in subTrips %}
+        <li>
+            <a href="{{ url_for('trips.edit', id=t.id) }}">{{ t.name }}</a>
+            ({{ t.latitude }}, {{ t.longitude }})
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <p>
+        <a href="{{ url_for('trips.createSub', id=trip.id) }}">Add a secondary area</a>
+    </p>
+
 
 </div>
 
