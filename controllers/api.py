@@ -10,7 +10,7 @@ from models.Hotspots import Hotspot
 from repositories.HotspotRepository import getHotspotIdsForTrip
 from repositories.SpeciesRepository import getTripSpeciesByNameFragment, getSpecies
 from repositories.SpeciesFreqRepository import getTopHotspotsForSpecies, getUniqueTargetCount
-from repositories.TripRepository import getTrip
+from repositories.TripRepository import getTrip, getSubTripsForTrip
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -45,7 +45,15 @@ def speciesHotspots(tripId: int, speciesId: int):
     if species is None:
         return []
 
-    hotspots = getTopHotspotsForSpecies(db.session, speciesId, month=trip.month, lat=trip.latitude, lng=trip.longitude)
+    subTrips = getSubTripsForTrip(db.session, tripId)
+    allTrips = [trip] + subTrips
+
+    hotspots = getTopHotspotsForSpecies(
+        db.session,
+        speciesId,
+        month=trip.month,
+        zones=[{'lat': trip.latitude, 'lng': trip.longitude, 'radiusKm': trip.radiusKm} for trip in allTrips]
+    )
     tripHotspotIds = getHotspotIdsForTrip(db.session, tripId)
 
     return [{'freq': h.freq, 'locId': h.locId, 'name': h.name, 'isInTrip': h.id in tripHotspotIds} for h in hotspots]

@@ -1,5 +1,5 @@
 
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 
 from models.Species import Species
@@ -24,15 +24,17 @@ def getSpeciesFreqs(session: Session, hotspotId: int, month: int, freq: int = No
     return speciesFreqs
 
 
-def getTopHotspotsForSpecies(session: Session, speciesId: int, month: int, limit: int = 10, lat: float = None, lng: float = None) -> list:
+def getTopHotspotsForSpecies(session: Session, speciesId: int, month: int, limit: int = 10, zones: list = None) -> list:
     from models.Hotspots import Hotspot
 
     hotspots = session.query(Hotspot)\
         .join(SpeciesFreq)\
         .filter(SpeciesFreq.speciesId == speciesId)\
         .filter(SpeciesFreq.month == month)
-    if lat and lng:
-        hotspots = hotspots.filter(func.abs(Hotspot.latitude - lat) < 0.6)
+    if zones:
+        zoneFilters = (and_(func.abs(Hotspot.latitude - zone['lat']) < zone['radiusKm'] / 111.1, func.abs(Hotspot.longitude - zone['lng']) < zone['radiusKm'] / 111.1) for zone in zones)
+        hotspots = hotspots.filter(or_(zoneFilters))
+
     hotspots = hotspots.with_entities(Hotspot.id, Hotspot.name, Hotspot.locId, SpeciesFreq.freq)\
         .order_by(SpeciesFreq.freq.desc())\
         .limit(limit)\
