@@ -1,7 +1,7 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app, Response
+    Blueprint, g, render_template, current_app as app, Response
 )
-from flaskr.auth import login_required
+from controllers.auth import login_required
 
 from repositories.UserSpeciesRepository import *
 

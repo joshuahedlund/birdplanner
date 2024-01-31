@@ -12,7 +12,7 @@
         <a class="nav-link {% if page == 'settings' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.settings', id=trip.id) }}">Settings</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link {% if page == 'show' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.hotspots', id=trip.id) }}">Hotspots</a>
+        <a class="nav-link {% if page == 'hotspots' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips-hotspots.showHotspots', id=trip.id) }}">Hotspots</a>
     </li>
     <li class="nav-item">
         <a class="nav-link {% if page == 'matrix' %} active {% endif %}" data-toggle="tab" href="{{ url_for('trips.matrix', id=trip.id) }}">Matrix</a>

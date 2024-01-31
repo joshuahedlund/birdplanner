@@ -29,7 +29,7 @@
                 [<a href="javascript:void(0)" onclick="getSpeciesFreq({{ hotspot.id }}, this.parentElement)">get</a>]
                 {% endif %}
             </td>
-            <td>[<a href="{{ url_for('trips.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
+            <td>[<a href="{{ url_for('trips-hotspots.skip', id=trip.id, hotspotId=hotspot.id) }}">skip</a>]</td>
         </tr>
         {% endfor %}
         <tr>
@@ -70,7 +70,7 @@
                     {% endif %}
                 </td>
                 <td>{{ hotspot['surplusSpeciesCount'] }}</td>
-                <td>[<a href="{{ url_for('trips.visit', id=trip.id, hotspotId=hotspot['hotspot'].id) }}">visit</a>]</td>
+                <td>[<a href="{{ url_for('trips-hotspots.visit', id=trip.id, hotspotId=hotspot['hotspot'].id) }}">visit</a>]</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -78,7 +78,7 @@
     {% endif %}
 
     {% if not moreHotspots and not tripHotspots and not skipHotspots %}
-        <form method="post" action="{{ url_for('trips.findHotspots', id=trip.id) }}">
+        <form method="post" action="{{ url_for('trips-hotspots.findHotspots', id=trip.id) }}">
             <input type="submit" class="btn-primary" value="Find potential hotspots">
         </form>
     {% endif %}
@@ -108,7 +108,7 @@
                     {% endif %}
                 </td>
                 <td>{{ hotspot['surplusSpeciesCount'] }}</td>
-                <td>[<a href="{{ url_for('trips.add', id=trip.id, hotspotId=hotspot['hotspot'].id) }}">add</a>]</td>
+                <td>[<a href="{{ url_for('trips-hotspots.add', id=trip.id, hotspotId=hotspot['hotspot'].id) }}">add</a>]</td>
             </tr>
             {% endfor %}
           </tbody>

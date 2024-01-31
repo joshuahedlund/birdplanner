@@ -1,7 +1,7 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
+    Blueprint, flash, g, request, current_app as app
 )
-from flaskr.auth import login_required
+from controllers.auth import login_required
 
 from get_species_freq import retrieveSpeciesFreqs
 
