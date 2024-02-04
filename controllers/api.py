@@ -62,15 +62,15 @@ def speciesHotspots(tripId: int, speciesId: int):
 @bp.route('/trip/<int:tripId>/hotspot/<int:hotspotId>/get-freqs')
 @login_required
 def getFreqs(tripId: int, hotspotId: int):
-    FREQ_MIN = 70
     db = app.db
     hotspot = db.session.query(Hotspot).get(hotspotId)
     if hotspot is None:
         return 'ERR'
 
-    retrieveSpeciesFreqs(hotspot.id)
+    retrieveSpeciesFreqs(db.session, hotspot.id)
 
     #Get target count
     trip = getTrip(db.session, tripId)
-    count = getUniqueTargetCount(db.session, [hotspotId], trip.month, FREQ_MIN)
+    count = getUniqueTargetCount(db.session, [hotspotId], trip.month, trip.freqMin, g.user.id)
+
     return str(count)

@@ -21,8 +21,8 @@ def getSpeciesIds(session: Session, speciesNames: list) -> DataFrame:
 
     return DataFrame(species, columns=['id', 'name'])
 
-def storeSpecies(session: Session, name: str) -> int:
-    species = Species(name=name)
+def storeSpecies(session: Session, name: str, urlId: str) -> int:
+    species = Species(name=name, latinName='', urlId=urlId)
     session.add(species)
     session.flush()
 

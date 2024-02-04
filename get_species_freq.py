@@ -6,7 +6,6 @@ import requests
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from models.base import init_engine
 from models.Hotspots import Hotspot
 from repositories.SpeciesFreqRepository import storeSpeciesFreq
 from repositories.SpeciesRepository import getSpeciesIds, storeSpecies
@@ -18,13 +17,15 @@ def parseSpeciesList(tbody: str, month: int, freqMin: float) -> pd.DataFrame:
     for row in tbody.split('<tr class="rC')[1:]:
 
         td = row.split('</td>')[0]
+
         if '<a ' not in td:
             # probably domestic/hybrid species
             continue
 
         speciesName = td.split('<a ')[-1].split('">')[1].split('</a>')[0].strip()
+        speciesUrlId = td.split('<a ')[-1].split('href="/species/')[1].split('"')[0]
 
-        # Get December charts from last td
+        # Get chart from month column
         lastTd = row.split('</td>')[2 + month]
 
         # Get class for every div in lastTd
@@ -37,10 +38,10 @@ def parseSpeciesList(tbody: str, month: int, freqMin: float) -> pd.DataFrame:
         freqAvg = freqSum / 4
 
         if freqAvg >= freqMin:
-            speciesList.append((freqAvg, speciesName))
+            speciesList.append((freqAvg, speciesName, speciesUrlId))
 
     # Convert to df
-    speciesList = pd.DataFrame(speciesList, columns=['freq', 'species'])
+    speciesList = pd.DataFrame(speciesList, columns=['freq', 'species', 'urlId'])
 
     return speciesList
 
@@ -56,34 +57,32 @@ def getTbodyFromLocID(LocID: str) -> Optional[str]:
 
     return tbody
 
-def retrieveSpeciesFreqs(hotspotId: int):
+def retrieveSpeciesFreqs(session: Session, hotspotId: int) -> None:
 
-    with Session(init_engine()) as session:
-        hotspot = session.query(Hotspot).get(hotspotId)
+    hotspot = session.query(Hotspot).get(hotspotId)
 
-        tbody = getTbodyFromLocID(hotspot.locId)
-        if not tbody:
-            print("tbody is empty")
-            return None
+    tbody = getTbodyFromLocID(hotspot.locId)
+    if not tbody:
+        return None
 
-        for month in range(1, 13):
-            speciesList = parseSpeciesList(tbody, month, 0.1)
+    for month in range(1, 13):
+        speciesList = parseSpeciesList(tbody, month, 0.1)
 
-            # Get species ids that already exist from species names
-            speciesNameMap = getSpeciesIds(session, speciesList['species'].tolist())
+        # Get species ids that already exist from species names
+        speciesNameMap = getSpeciesIds(session, speciesList['species'].tolist())
 
-            for row in speciesList.itertuples(index=False):
-                # Get or store species id
-                speciesRow = speciesNameMap.loc[speciesNameMap['name'] == row.species, 'id']
-                if not speciesRow.empty:
-                    speciesId = speciesRow.iloc[0]
-                else:
-                    speciesId = storeSpecies(session, row.species)
+        for row in speciesList.itertuples(index=False):
+            # Get or store species id
+            speciesRow = speciesNameMap.loc[speciesNameMap['name'] == row.species, 'id']
+            if not speciesRow.empty:
+                speciesId = speciesRow.iloc[0]
+            else:
+                speciesId = storeSpecies(session, row.species, row.urlId)
 
-                # Save species frequency
-                storeSpeciesFreq(session, hotspot.id, speciesId, row.freq * 10, month)
+            # Save species frequency
+            storeSpeciesFreq(session, hotspot.id, speciesId, row.freq * 10, month)
 
-        # Update hotspot speciesFreqUpdatedAt
-        hotspot.speciesFreqUpdatedAt = datetime.now()
+    # Update hotspot speciesFreqUpdatedAt
+    hotspot.speciesFreqUpdatedAt = datetime.now()
 
-        session.commit()
+    session.commit()
