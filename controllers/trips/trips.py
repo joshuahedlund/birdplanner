@@ -174,6 +174,11 @@ def matrix(id: int):
         return redirect(url_for("home.home"))
 
     hotspots = getTripHotspotsWithFreqs(db.session, id)
+
+    if len(hotspots) == 0:
+        flash(f"Add hotspots to your trip to view species matrix.")
+        return redirect(url_for("trips-hotspots.showHotspots", id=id))
+
     curatedHotspots = []
     speciesHashMap = {}
     for hotspot in hotspots:
@@ -206,9 +211,6 @@ def matrix(id: int):
         else:
             hotspotMatrix = hotspotMatrix.merge(hotspot['species'], how='outer', on='speciesId')
 
-    # move species column to first column of dataframe
-    hotspotMatrix = hotspotMatrix[['speciesId'] + [col for col in hotspotMatrix.columns if col != 'speciesId']]
-
     # filter out species with a maximum value less than min freq
     hotspotMatrix = hotspotMatrix[hotspotMatrix.iloc[:, 1:].max(axis=1) >= trip.freqMin]
 
@@ -216,6 +218,12 @@ def matrix(id: int):
     excludeSpecies = getUserSpeciesList(db.session, trip.userId)
     excludeSpeciesIds = [s.speciesId for s in excludeSpecies]
     hotspotMatrix = hotspotMatrix[~hotspotMatrix['speciesId'].isin(excludeSpeciesIds)]
+
+    # type all freq columsn as int
+
+
+    # move species column to first column of dataframe
+    hotspotMatrix = hotspotMatrix[['speciesId'] + [col for col in hotspotMatrix.columns if col != 'speciesId']]
 
     # add column with an html form to remove the species and move it to the front
     hotspotMatrix['X'] = '<button type="button" class="btn btn-primary btn-sm userSpeciesAdd" data-speciesid="' + hotspotMatrix['speciesId'].astype(str) +'">X</button>'
@@ -225,7 +233,6 @@ def matrix(id: int):
     hotspotMatrix['speciesId'] = hotspotMatrix['speciesId'].map(speciesHashMap)
     hotspotMatrix.rename(columns={'speciesId': 'Species'}, inplace=True)
 
-
     # resort index starting with 1
     hotspotMatrix.index = range(1, len(hotspotMatrix) + 1)
 
@@ -233,7 +240,8 @@ def matrix(id: int):
         'trips/matrix.html',
         page='matrix',
         trip=trip,
-        matrixTable=hotspotMatrix.to_html(na_rep='', classes="table table-actions", float_format=lambda x: '%.0f' % x, escape=False)
+        matrixTable=hotspotMatrix.to_html(na_rep='', classes="table table-actions", float_format=lambda x: '%.0f' % x, escape=False),
+        hotspotMatrix=hotspotMatrix
     )
 
 
