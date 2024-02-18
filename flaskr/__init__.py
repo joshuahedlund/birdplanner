@@ -26,13 +26,14 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from controllers import api, auth, home, user
+    from controllers import api, auth, home, quick, user
     from controllers.trips import trips, hotspots
     app.register_blueprint(home.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(api.bp)
     app.register_blueprint(trips.bp)
     app.register_blueprint(hotspots.bp)
+    app.register_blueprint(quick.bp)
     app.register_blueprint(user.bp)
 
     app.add_url_rule('/', endpoint='index')
