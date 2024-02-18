@@ -219,29 +219,29 @@ def matrix(id: int):
     excludeSpeciesIds = [s.speciesId for s in excludeSpecies]
     hotspotMatrix = hotspotMatrix[~hotspotMatrix['speciesId'].isin(excludeSpeciesIds)]
 
-    # type all freq columsn as int
-
-
     # move species column to first column of dataframe
     hotspotMatrix = hotspotMatrix[['speciesId'] + [col for col in hotspotMatrix.columns if col != 'speciesId']]
 
-    # add column with an html form to remove the species and move it to the front
-    hotspotMatrix['X'] = '<button type="button" class="btn btn-primary btn-sm userSpeciesAdd" data-speciesid="' + hotspotMatrix['speciesId'].astype(str) +'">X</button>'
-    hotspotMatrix = hotspotMatrix[['X'] + [col for col in hotspotMatrix.columns if col != 'X']]
-
-    # replace speciesId with species name
-    hotspotMatrix['speciesId'] = hotspotMatrix['speciesId'].map(speciesHashMap)
-    hotspotMatrix.rename(columns={'speciesId': 'Species'}, inplace=True)
-
     # resort index starting with 1
     hotspotMatrix.index = range(1, len(hotspotMatrix) + 1)
+
+    # create list of dicts of species ids and the corresponding matrix row
+    speciesRows = []
+    for index, row in hotspotMatrix.iterrows():
+        hotspots = row[1:].to_dict()
+        speciesRows.append({
+            'index': index,
+            'speciesId': int(row['speciesId']),
+            'speciesName': speciesHashMap[row['speciesId']],
+            'freq': [int(x) if x == x else '' for x in row[1:].values]
+        })
 
     return render_template(
         'trips/matrix.html',
         page='matrix',
         trip=trip,
-        matrixTable=hotspotMatrix.to_html(na_rep='', classes="table table-actions", float_format=lambda x: '%.0f' % x, escape=False),
-        hotspotMatrix=hotspotMatrix
+        hotspots=hotspots,
+        speciesRows=speciesRows
     )
 
 

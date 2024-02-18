@@ -2,21 +2,25 @@
 
 {% block tabContent %}
 <div class="tab-content">
-    {{ matrixTable|safe }}
-
     <table class="table table-actions">
         <thead>
             <tr>
-                {% for col in hotspotMatrix %}
-                <th>{{ col }}</th>
+                <th></th>
+                <th>Species</th>
+                <th>X</th>
+                {% for hotspot in hotspots %}
+                <th>{{ hotspot | safe }}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for row in hotspotMatrix.itertuples(index=False) %}
+            {% for row in speciesRows %}
             <tr>
-                {% for cell in row %}
-                <td>{{ cell }}</td>
+                <td>{{ row['index'] }}</td>
+                <td>{{ row['speciesName'] }}</td>
+                <td><button type="button" class="btn btn-primary btn-sm userSpeciesAdd" data-speciesid="{{ row['speciesId'] }}">X</button></td>
+                {% for freq in row['freq'] %}
+                <td>{{ freq }}</td>
                 {% endfor %}
             </tr>
             {% endfor %}
