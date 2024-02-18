@@ -21,6 +21,7 @@ bp = Blueprint('trips', __name__)
 def create():
     trip = Trip()
     trip.id = 0
+    trip.parentTripId = 0
     trip.name = ''
     trip.latitude = ''
     trip.longitude = ''
