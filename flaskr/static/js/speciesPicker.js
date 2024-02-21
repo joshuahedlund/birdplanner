@@ -9,9 +9,18 @@ function debounce(func, delay) {
     };
   }
 
-  const fetchSuggestions = debounce(function(query, inputField, suggestionsContainer, tripId) {
+  const fetchSuggestions = debounce(function(query, inputField, suggestionsContainer, tripId, month) {
+        urlSearchParams = {
+          query: query
+        }
+        if (tripId) {
+          urlSearchParams.tripId = tripId;
+        } else if (month) {
+            urlSearchParams.month = month;
+        }
+
         // Fetch data for suggestions
-        fetch('/api/trip/' + tripId + '/species-search?query=' + query)
+        fetch('/api/species-search?' + new URLSearchParams(urlSearchParams))
           .then(response => response.json())
           .then(data => {
             suggestionsContainer.innerHTML = '';

@@ -38,13 +38,30 @@
                 <option value="12">December</option>
             </select>
         </div>
+
+        <div class="col">
+            <label for="radiusKm">Radius <span title="Number of kilometers from center, to consider hotspots">&#9432;</span></label>
+            <select class="form-control" id="radiusKm" name="radiusKm">
+                <option value="20">20 km (12 mi) </option>
+                <option value="30">30 km (19 mi) </option>
+                <option value="40">40 km (25 mi) </option>
+                <option value="50">50 km (31 mi) </option>
+                <option value="60">60 km (37 mi) </option>
+                <option value="70">70 km (43 mi) </option>
+                <option value="80">80 km (50 mi) </option>
+                <option value="90">90 km (56 mi) </option>
+                <option value="100">100 km (62 mi) </option>
+            </select>
+        </div>
   </div>
 
   <div class="row">
     <div class="col">
-      <label for="speciesPicker">Species</label>
-      <input class="form-control" type="text" id="speciesPicker" placeholder="Type to search...">
-    <div id="suggestions"></div>
+        <label for="speciesPicker">Species</label>
+        <input type="text" id="speciesPicker" placeholder="Type to search...">
+        <div id="suggestions"></div>
+
+      {% include 'components/species-picker.html' %}
 
     </div>
   </div>

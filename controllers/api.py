@@ -15,20 +15,42 @@ from repositories.TripRepository import getTrip, getSubTripsForTrip
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
-@bp.route('/trip/<int:id>/species-search')
+@bp.route('/species-search')
 @login_required
-def speciesSearch(id: int):
+def speciesSearch():
     db = app.db
-    trip = getTrip(db.session, id)
-    if trip is None or trip.userId != g.user.id:
-        flash(f"Trip not found.")
-        return []
+    zones = []
 
     search = request.args.get('query')
     if search is None or len(search) < 3:
         return []
 
-    species = getTripSpeciesByNameFragment(db.session, search, trip.month, trip.latitude, trip.longitude)
+    month = int(request.args.get('month', default=0))
+
+    tripId = int(request.args.get('tripId', default=0))
+    if tripId > 0:
+        trip = getTrip(db.session, tripId)
+        if trip is None or trip.userId != g.user.id:
+            flash(f"Trip not found.")
+            return []
+
+        month = trip.month
+
+        subTrips = getSubTripsForTrip(db.session, tripId)
+        allTrips = [trip] + subTrips
+
+        zones = [{'lat': trip.latitude, 'lng': trip.longitude, 'radiusKm': trip.radiusKm} for trip in allTrips]
+
+    print('search: ', search)
+    print('month: ', month)
+    print('zones: ', zones)
+
+    species = getTripSpeciesByNameFragment(
+        db.session,
+        search,
+        month=month,
+        zones=zones
+    )
 
     return [{'id': s.id, 'name': s.name} for s in species]
 
