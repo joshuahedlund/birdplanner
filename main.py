@@ -9,8 +9,8 @@ from topbars import getTopSpecies
 MONTH = 12
 FREQ_MIN = 70
 
-lat = -33.87
-lng = 151.21
+lat = 34.0536909
+lng = -118.242766
 
 
 engine = init_engine()
@@ -25,17 +25,17 @@ with Session(engine) as session:
 
         speciesList = getTopSpecies(hotspot, month=MONTH, freq=FREQ_MIN)
 
-        surplusSpeciesList = speciesList[~speciesList['species'].isin(curated_species)]
-        curated_species.extend(surplusSpeciesList['species'])
-
-        print(len(surplusSpeciesList))
-        if len(surplusSpeciesList) > 0:
-            print(surplusSpeciesList)
-
-        curated_hotspots.append({
-            'name': hotspot.name,
-            'species': speciesList,
-            'speciesCount': len(speciesList),
-            'surplus': surplusSpeciesList,
-            'surplusCount': len(surplusSpeciesList)
-        })
+        # surplusSpeciesList = speciesList[~speciesList['species'].isin(curated_species)]
+        # curated_species.extend(surplusSpeciesList['species'])
+        #
+        # print(len(surplusSpeciesList))
+        # if len(surplusSpeciesList) > 0:
+        #     print(surplusSpeciesList)
+        #
+        # curated_hotspots.append({
+        #     'name': hotspot.name,
+        #     'species': speciesList,
+        #     'speciesCount': len(speciesList),
+        #     'surplus': surplusSpeciesList,
+        #     'surplusCount': len(surplusSpeciesList)
+        # })

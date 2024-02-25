@@ -9,13 +9,13 @@ from repositories.SpeciesFreqRepository import getSpeciesFreqs
 
 
 def getTopSpecies(hotspot: Hotspot, month: int, freq: int = None) -> pd.DataFrame:
-    if hotspot.speciesFreqUpdatedAt is None:
-        time.sleep(1) # be kind to ebird
-        retrieveSpeciesFreqs(hotspot.id)
     with Session(init_engine()) as session:
+        if hotspot.speciesFreqUpdatedAt is None:
+            time.sleep(1) # be kind to ebird
+            retrieveSpeciesFreqs(session, hotspot.id)
         speciesFreqs = getSpeciesFreqs(session, hotspot.id, month, freq)
 
-    speciesList = pd.DataFrame(speciesFreqs, columns=['species', 'freq'])
+    speciesList = pd.DataFrame(speciesFreqs, columns=['speciesId', 'speciesName', 'freq'])
 
     # Sort by frequency
     speciesList = speciesList.sort_values(by=['freq'], ascending=False, ignore_index=True)
