@@ -6,6 +6,7 @@ from controllers.auth import login_required
 from get_species_freq import retrieveSpeciesFreqs
 
 from models.Hotspots import Hotspot
+from models.Trips import Trip
 
 from repositories.HotspotRepository import getHotspotIdsForTrip
 from repositories.SpeciesRepository import getTripSpeciesByNameFragment, getSpecies
@@ -41,10 +42,6 @@ def speciesSearch():
 
         zones = [{'lat': trip.latitude, 'lng': trip.longitude, 'radiusKm': trip.radiusKm} for trip in allTrips]
 
-    print('search: ', search)
-    print('month: ', month)
-    print('zones: ', zones)
-
     species = getTripSpeciesByNameFragment(
         db.session,
         search,
@@ -55,28 +52,45 @@ def speciesSearch():
     return [{'id': s.id, 'name': s.name} for s in species]
 
 
-@bp.route('/trip/<int:tripId>/species/<int:speciesId>/hotspots')
+@bp.route('/hotspot-search/<int:speciesId>')
 @login_required
-def speciesHotspots(tripId: int, speciesId: int):
+def speciesHotspots(speciesId: int):
     db = app.db
-    trip = getTrip(db.session, tripId)
-    if trip is None or trip.userId != g.user.id:
-        return []
+
+    month = int(request.args.get('month', default=0))
+
+    tripId = int(request.args.get('tripId', default=0))
+    if tripId > 0:
+        trip = getTrip(db.session, tripId)
+        if trip is None or trip.userId != g.user.id:
+            return []
+
+        month = trip.month
+
+        subTrips = getSubTripsForTrip(db.session, tripId)
+        allTrips = [trip] + subTrips
+
+        tripHotspotIds = getHotspotIdsForTrip(db.session, tripId)
+    else:
+        zone = Trip(
+            latitude=float(request.args.get('lat')),
+            longitude=float(request.args.get('lng')),
+            radiusKm=int(request.args.get('radiusKm')),
+        )
+        allTrips = [zone]
+        tripHotspotIds = []
 
     species = getSpecies(db.session, speciesId)
     if species is None:
         return []
 
-    subTrips = getSubTripsForTrip(db.session, tripId)
-    allTrips = [trip] + subTrips
 
     hotspots = getTopHotspotsForSpecies(
         db.session,
         speciesId,
-        month=trip.month,
+        month=month,
         zones=[{'lat': trip.latitude, 'lng': trip.longitude, 'radiusKm': trip.radiusKm} for trip in allTrips]
     )
-    tripHotspotIds = getHotspotIdsForTrip(db.session, tripId)
 
     return [{'freq': h.freq, 'locId': h.locId, 'name': h.name, 'isInTrip': h.id in tripHotspotIds} for h in hotspots]
 

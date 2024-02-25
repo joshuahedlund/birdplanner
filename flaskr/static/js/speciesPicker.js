@@ -9,29 +9,21 @@ function debounce(func, delay) {
     };
   }
 
-  const fetchSuggestions = debounce(function(query, inputField, suggestionsContainer, tripId, month) {
-        urlSearchParams = {
-          query: query
-        }
-        if (tripId) {
-          urlSearchParams.tripId = tripId;
-        } else if (month) {
-            urlSearchParams.month = month;
-        }
-
+  const fetchSuggestions = debounce(function(inputField, suggestionsContainer, speciesSearchParams, hotspotSearchParams) {
         // Fetch data for suggestions
-        fetch('/api/species-search?' + new URLSearchParams(urlSearchParams))
+        fetch('/api/species-search?' + new URLSearchParams(speciesSearchParams))
           .then(response => response.json())
           .then(data => {
             suggestionsContainer.innerHTML = '';
             data.forEach(item => {
+              const query = speciesSearchParams.query;
               const regex = new RegExp(query, 'gi');
               const div = document.createElement('div');
               div.innerHTML = item.name.replace(regex, `<strong>${query}</strong>`);
               div.className = 'suggestion-item';
               div.onclick = function() {
                 inputField.value = item.name;
-                loadDetails(item.id, tripId);
+                loadDetails(item.id, hotspotSearchParams);
                 suggestionsContainer.innerHTML = '';
                 currentFocus = -1;
               };
@@ -56,8 +48,8 @@ function debounce(func, delay) {
     }
   }
 
-  function loadDetails(id, tripId) {
-    fetch('/api/trip/' + tripId + '/species/' + id + '/hotspots')
+  function loadDetails(speciesId, urlSearchParams) {
+    fetch('/api/hotspot-search/' + speciesId + '?' + new URLSearchParams(urlSearchParams))
       .then(response => response.json())
       .then(data => {
         const responseDiv = document.getElementById('responseDiv');
